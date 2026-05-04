@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard MBG</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="dashboard">
+
+<aside class="sidebar">
+    <h2>MBG</h2>
+    <ul>
+        <li><a href="index.html">Dashboard</a></li>
+        <li><a href="data.html">Data</a></li>
+        <li><a href="profile.html">Profile</a></li>
+        <li><a href="#" onclick="logout()">Logout</a></li>
+    </ul>
+</aside>
+
+<main class="main">
+    <h2>Input Distribusi</h2>
+
+    <div class="form-box">
+        <input type="text" id="menu" placeholder="Nama Menu">
+        <input type="text" id="bahan" placeholder="Bahan">
+        <input type="text" id="penerima" placeholder="Penerima">
+        <input type="number" id="porsi" placeholder="Jumlah Porsi">
+        
+        <select id="status">
+            <option value="Terkirim">Terkirim</option>
+            <option value="Proses">Proses</option>
+        </select>
+
+        <button onclick="tambahData()">Tambah</button>
+    </div>
+
+    <h2>Data Distribusi</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Menu</th>
+                <th>Bahan</th>
+                <th>Penerima</th>
+                <th>Porsi</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="data-body"></tbody>
+    </table>
+</main>
