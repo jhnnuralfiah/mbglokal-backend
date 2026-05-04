@@ -1,5 +1,90 @@
 package com.kelompok7.mbglokal.seeder;
 
-public class DataSeeder {
+import java.time.LocalDate;
 
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+import com.kelompok7.mbglokal.entity.Distribusi;
+import com.kelompok7.mbglokal.entity.Komoditas;
+import com.kelompok7.mbglokal.entity.PaketMenu;
+import com.kelompok7.mbglokal.entity.PenerimaManfaat;
+import com.kelompok7.mbglokal.entity.Petani;
+import com.kelompok7.mbglokal.repository.DistribusiRepository;
+import com.kelompok7.mbglokal.repository.KomoditasRepository;
+import com.kelompok7.mbglokal.repository.PaketMenuRepository;
+import com.kelompok7.mbglokal.repository.PenerimaManfaatRepository;
+import com.kelompok7.mbglokal.repository.PetaniRepository;
+
+@Component
+public class DataSeeder implements CommandLineRunner {
+
+    private final PetaniRepository petaniRepository;
+    private final PenerimaManfaatRepository penerimaManfaatRepository;
+    private final PaketMenuRepository paketMenuRepository;
+    private final KomoditasRepository komoditasRepository;
+    private final DistribusiRepository distribusiRepository; // Tambahan untuk Controller Bunga
+
+    public DataSeeder(PetaniRepository petaniRepository,
+                      PenerimaManfaatRepository penerimaManfaatRepository,
+                      PaketMenuRepository paketMenuRepository,
+                      KomoditasRepository komoditasRepository,
+                      DistribusiRepository distribusiRepository) {
+        this.petaniRepository = petaniRepository;
+        this.penerimaManfaatRepository = penerimaManfaatRepository;
+        this.paketMenuRepository = paketMenuRepository;
+        this.komoditasRepository = komoditasRepository;
+        this.distribusiRepository = distribusiRepository;
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        // Cek apakah tabel Petani masih kosong
+        if (petaniRepository.count() == 0) {
+            System.out.println("Memulai proses Seeding Data Dummy...");
+
+            // 1. Data Petani 
+            Petani petani = new Petani();
+            petani.setNamaKelompok("Tani Makmur Jaya");
+            petani.setKontak("089876543210"); 
+            petani.setAlamat("Desa Ciburuy, Padalarang");
+            petaniRepository.save(petani);
+
+            // 2. Data Penerima Manfaat 
+            PenerimaManfaat panti = new PenerimaManfaat();
+            panti.setNamaInstansi("SDN 01 Sejahtera");
+            panti.setKategori("Sekolah");
+            panti.setKontak("081122334455");
+            panti.setAlamat("Jl. Merdeka No. 10, Bandung");
+            panti.setJumlahPorsiHarian(150);
+            penerimaManfaatRepository.save(panti);
+
+            // 3. Data Paket Menu MBG
+            PaketMenu menu1 = new PaketMenu();
+            menu1.setNamaMenu("Paket 4 Sehat (Ayam + Sayur)");
+            menu1.setDeskripsiGizi("Tinggi Protein 600 kkal");
+            paketMenuRepository.save(menu1);
+
+            // 4. Data Komoditas
+            Komoditas beras = new Komoditas();
+            beras.setNamaBahan("Beras Putih Premium");
+            beras.setKategori("Karbohidrat");
+            beras.setStokSaatIni(500.0);
+            beras.setSatuan("kg");
+            komoditasRepository.save(beras);
+
+            // 5. Data Distribusi (Untuk ngetes API buatan Bunga)
+            Distribusi distribusi = new Distribusi();
+            distribusi.setPenerimaManfaat(panti);
+            distribusi.setPaketMenu(menu1);
+            distribusi.setTanggalKirim(LocalDate.now());
+            distribusi.setJumlahPorsiDikirim(150);
+            distribusi.setStatus("Dikirim");
+            distribusiRepository.save(distribusi);
+
+            System.out.println("✅ Data Seeder berhasil! Database sudah terisi data dummy.");
+        } else {
+            System.out.println("⏩ Data sudah ada di database, Seeder di-skip.");
+        }
+    }
 }
