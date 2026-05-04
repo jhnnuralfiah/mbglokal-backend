@@ -35,5 +35,5 @@ public class Distribusi {
     @Column(name = "jumlah_porsi_dikirim")
     private Integer jumlahPorsiDikirim;
 
-    private String status; // Dikemas, Dikirim, Selesai
+    private String status; 
 }
