@@ -5,11 +5,13 @@ import java.time.LocalDate;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import com.kelompok7.mbglokal.entity.DetailMenu;
 import com.kelompok7.mbglokal.entity.Distribusi;
 import com.kelompok7.mbglokal.entity.Komoditas;
 import com.kelompok7.mbglokal.entity.PaketMenu;
 import com.kelompok7.mbglokal.entity.PenerimaManfaat;
 import com.kelompok7.mbglokal.entity.Petani;
+import com.kelompok7.mbglokal.repository.DetailMenuRepository;
 import com.kelompok7.mbglokal.repository.DistribusiRepository;
 import com.kelompok7.mbglokal.repository.KomoditasRepository;
 import com.kelompok7.mbglokal.repository.PaketMenuRepository;
@@ -23,18 +25,21 @@ public class DataSeeder implements CommandLineRunner {
     private final PenerimaManfaatRepository penerimaManfaatRepository;
     private final PaketMenuRepository paketMenuRepository;
     private final KomoditasRepository komoditasRepository;
-    private final DistribusiRepository distribusiRepository; // Tambahan untuk Controller Bunga
+    private final DistribusiRepository distribusiRepository; 
+    private final DetailMenuRepository detailMenuRepository; 
 
     public DataSeeder(PetaniRepository petaniRepository,
                       PenerimaManfaatRepository penerimaManfaatRepository,
                       PaketMenuRepository paketMenuRepository,
                       KomoditasRepository komoditasRepository,
-                      DistribusiRepository distribusiRepository) {
+                      DistribusiRepository distribusiRepository,
+                      DetailMenuRepository detailMenuRepository) { 
         this.petaniRepository = petaniRepository;
         this.penerimaManfaatRepository = penerimaManfaatRepository;
         this.paketMenuRepository = paketMenuRepository;
         this.komoditasRepository = komoditasRepository;
         this.distribusiRepository = distribusiRepository;
+        this.detailMenuRepository = detailMenuRepository;
     }
 
     @Override
@@ -57,7 +62,7 @@ public class DataSeeder implements CommandLineRunner {
             panti.setKontak("081122334455");
             panti.setAlamat("Jl. Merdeka No. 10, Bandung");
             panti.setJumlahPorsiHarian(150);
-            penerimaManfaatRepository.save(panti);
+            penerimaManfaatRepository.save(panti); // <--- INI YANG SUDAH DIPERBAIKI
 
             // 3. Data Paket Menu MBG
             PaketMenu menu1 = new PaketMenu();
@@ -73,7 +78,14 @@ public class DataSeeder implements CommandLineRunner {
             beras.setSatuan("kg");
             komoditasRepository.save(beras);
 
-            // 5. Data Distribusi (Untuk ngetes API buatan Bunga)
+            // 5. Data Detail Menu (Resep)
+            DetailMenu resepBeras = new DetailMenu();
+            resepBeras.setPaketMenu(menu1); 
+            resepBeras.setKomoditas(beras); 
+            resepBeras.setJumlahKebutuhanPerPorsi(0.15); 
+            detailMenuRepository.save(resepBeras);
+
+            // 6. Data Distribusi (Untuk ngetes API)
             Distribusi distribusi = new Distribusi();
             distribusi.setPenerimaManfaat(panti);
             distribusi.setPaketMenu(menu1);
@@ -82,7 +94,7 @@ public class DataSeeder implements CommandLineRunner {
             distribusi.setStatus("Dikirim");
             distribusiRepository.save(distribusi);
 
-            System.out.println("✅ Data Seeder berhasil! Database sudah terisi data dummy.");
+            System.out.println("✅ Data Seeder berhasil! Database sudah terisi data dummy lengkap dengan Resep.");
         } else {
             System.out.println("⏩ Data sudah ada di database, Seeder di-skip.");
         }

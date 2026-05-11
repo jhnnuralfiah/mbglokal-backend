@@ -7,7 +7,7 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.Data;
 
 @Data
-@MappedSuperclass // Anotasi penting! Ini agar atribut di bawah ini diturunkan ke tabel anaknya
+@MappedSuperclass //supaya atribut di bawah ini diturunkan ke tabel anaknya
 public abstract class User {
     
     @Id

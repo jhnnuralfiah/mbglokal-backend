@@ -15,7 +15,7 @@ public class PenerimaManfaat extends User { // Menerapkan Inheritance dari User
     @Column(name = "nama_instansi")
     private String namaInstansi;
 
-    private String kategori; // Misalnya: Sekolah, Panti Asuhan
+    private String kategori; // Sekolah, Panti Asuhan
     
     @Column(name = "jumlah_porsi_harian")
     private Integer jumlahPorsiHarian;
