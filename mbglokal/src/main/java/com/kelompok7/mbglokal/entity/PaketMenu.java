@@ -1,10 +1,13 @@
 package com.kelompok7.mbglokal.entity;
 
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -19,7 +22,10 @@ public class PaketMenu {
 
     @Column(name = "nama_menu")
     private String namaMenu;
-
+    
     @Column(name = "deskripsi_gizi")
     private String deskripsiGizi;
+
+    @OneToMany(mappedBy = "paketMenu")
+    private List<DetailMenu> detailMenus;
 }
