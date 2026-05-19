@@ -4,15 +4,26 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.kelompok7.mbglokal.entity.DetailMenu;
 import com.kelompok7.mbglokal.entity.Distribusi;
+import com.kelompok7.mbglokal.entity.Komoditas;
+import com.kelompok7.mbglokal.repository.DetailMenuRepository;
 import com.kelompok7.mbglokal.repository.DistribusiRepository;
+import com.kelompok7.mbglokal.repository.KomoditasRepository;
 
 @Service
 public class DistribusiServiceImpl implements DistribusiService {
 
     @Autowired
     private DistribusiRepository repo;
+
+    @Autowired
+    private DetailMenuRepository detailMenuRepository;
+
+    @Autowired
+    private KomoditasRepository komoditasRepository;
 
     @Override
     public List<Distribusi> getAll() {
@@ -25,14 +36,88 @@ public class DistribusiServiceImpl implements DistribusiService {
     }
 
     @Override
+    @Transactional
     public Distribusi create(Distribusi distribusi) {
+
+        // VALIDASI JUMLAH PORSI
+        if (distribusi.getJumlahPorsiDikirim() <= 0) {
+            throw new RuntimeException("Jumlah porsi harus lebih dari 0");
+        }
+
+        // AMBIL DETAIL MENU
+        List<DetailMenu> detailMenus =
+                detailMenuRepository.findByPaketMenu_IdMenu(
+                        distribusi.getPaketMenu().getIdMenu()
+                );
+
+        // VALIDASI MENU
+        if (detailMenus.isEmpty()) {
+            throw new RuntimeException("Menu tidak memiliki detail bahan");
+        }
+
+        // CEK STOK
+        for (DetailMenu detail : detailMenus) {
+
+            Komoditas komoditas = detail.getKomoditas();
+
+            double kebutuhanTotal =
+                    detail.getJumlahKebutuhanPerPorsi()
+                    * distribusi.getJumlahPorsiDikirim();
+
+            if (komoditas.getStokSaatIni() == null) {
+                throw new RuntimeException(
+                    "Stok bahan belum diisi: "
+                        + komoditas.getNamaBahan()
+                );
+            }
+
+            if (komoditas.getStokSaatIni() < kebutuhanTotal) {
+
+                throw new RuntimeException(
+                        "Stok tidak cukup untuk: "
+                        + komoditas.getNamaBahan()
+                );
+            }
+        }
+
+        // KURANGI STOK
+        for (DetailMenu detail : detailMenus) {
+
+            Komoditas komoditas = detail.getKomoditas();
+
+            double kebutuhanTotal =
+                    detail.getJumlahKebutuhanPerPorsi()
+                    * distribusi.getJumlahPorsiDikirim();
+
+            double stokBaru =
+                    komoditas.getStokSaatIni() - kebutuhanTotal;
+
+            if (stokBaru < 0) {
+               throw new RuntimeException(
+                    "Stok menjadi negatif untuk: "
+                        + komoditas.getNamaBahan()
+                );
+            }
+            
+            komoditas.setStokSaatIni(stokBaru);
+
+            komoditasRepository.save(komoditas);
+        }
+
+        // STATUS DEFAULT
+        distribusi.setStatus("DIPROSES");
+
+        // SIMPAN DISTRIBUSI
         return repo.save(distribusi);
     }
 
     @Override
     public Distribusi updateStatus(Long id, String status) {
+
         Distribusi d = repo.findById(id).orElseThrow();
+
         d.setStatus(status);
+
         return repo.save(d);
     }
 
