@@ -28,16 +28,25 @@ public class DistribusiController {
 
     // POST
     @PostMapping
-    public Distribusi create(@RequestBody Distribusi distribusi) {
-        return service.create(distribusi);
+    public Object create(@RequestBody Distribusi distribusi) {
+
+        try {
+
+            return service.create(distribusi);
+
+        } catch (RuntimeException e) {
+
+            return java.util.Map.of(
+                    "success", false,
+                    "message", e.getMessage());
+        }
     }
 
     // UPDATE STATUS
     @PutMapping("/{id}/status")
     public Distribusi updateStatus(
             @PathVariable Long id,
-            @RequestParam String status
-    ) {
+            @RequestParam String status) {
         return service.updateStatus(id, status);
     }
 
