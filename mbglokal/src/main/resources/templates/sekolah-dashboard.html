@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard Sekolah</title>
+
+    <link rel="stylesheet"
+    href="style.css">
+
+</head>
+
+<body>
+
+<!-- =========================
+SIDEBAR
+========================= -->
+
+<div class="sidebar">
+
+    <img src="logo.png"
+    class="sidebar-logo">
+
+    <h2>SEKOLAH MBG</h2>
+
+    <ul>
+
+        <li onclick="showPage('dashboard')">
+            Dashboard
+        </li>
+
+        <li onclick="showPage('jadwal')">
+            Jadwal Makanan
+        </li>
+
+        <li onclick="showPage('distribusi')">
+            Status Distribusi
+        </li>
+
+        <li onclick="showPage('komentar')">
+            Komentar
+        </li>
+
+    </ul>
+
+    <button class="logout-btn"
+    onclick="logout()">
+
+        Logout
+
+    </button>
+
+</div>
+
+
+<!-- =========================
+CONTENT
+========================= -->
+
+<div class="content">
+
+    <!-- ================= DASHBOARD ================= -->
+
+    <div id="dashboard"
+    class="page">
+
+        <div class="topbar">
+
+            <h1>Dashboard Sekolah</h1>
+
+        </div>
+
+        <div class="card-container">
+
+            <div class="card">
+
+                <h3>Total Jadwal</h3>
+
+                <p id="totalJadwal">
+                    0
+                </p>
+
+            </div>
+
+            <div class="card">
+
+                <h3>Total Distribusi</h3>
+
+                <p id="totalDistribusi">
+                    0
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= JADWAL ================= -->
+
+    <div id="jadwal"
+    class="page hidden">
+
+        <div class="topbar">
+
+            <h1>Jadwal Makanan</h1>
+
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                    <th>No</th>
+                    <th>Paket</th>
+                    <th>Sekolah</th>
+                    <th>Porsi</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="jadwalBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= DISTRIBUSI ================= -->
+
+    <div id="distribusi"
+    class="page hidden">
+
+        <div class="topbar">
+
+            <h1>Status Distribusi</h1>
+
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>No</th>
+                        <th>Paket</th>
+                        <th>Sekolah</th>
+                        <th>Porsi</th>
+                        <th>Status</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="distribusiBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= KOMENTAR ================= -->
+
+    <div id="komentar"
+    class="page hidden">
+
+        <div class="topbar">
+
+            <h1>Komentar</h1>
+
+        </div>
+
+        <div class="form-box">
+
+            <input type="text"
+            id="namaSekolah"
+            placeholder="Nama Sekolah">
+
+            <input type="text"
+            id="isiKomentar"
+            placeholder="Tulis komentar">
+
+            <button class="add-btn"
+            onclick="tambahKomentar()">
+
+                Kirim
+
+            </button>
+
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>No</th>
+                        <th>Sekolah</th>
+                        <th>Komentar</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="komentarBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+JAVASCRIPT
+========================= -->
+
+<script>
+
+function showPage(page){
+
+    let pages =
+    document.querySelectorAll(".page");
+
+    pages.forEach(function(item){
+
+        item.classList.add("hidden");
+    });
+
+    document.getElementById(page)
+    .classList.remove("hidden");
+}
+
+
+// ==========================
+// LOGOUT
+// ==========================
+
+function logout(){
+
+    localStorage.removeItem("role");
+
+    window.location.href =
+    "login.html";
+}
+
+
+// ==========================
+// DATA DARI ADMIN
+// ==========================
+
+let paket =
+JSON.parse(
+localStorage.getItem(
+"paket")) || [];
+
+let distribusi =
+JSON.parse(
+localStorage.getItem(
+"distribusi")) || [];
+
+let komentar =
+JSON.parse(
+localStorage.getItem(
+"komentar")) || [];
+
+
+// ==========================
+// DASHBOARD
+// ==========================
+
+function loadDashboard(){
+
+    let totalJadwal =
+    document.getElementById(
+    "totalJadwal");
+
+    let totalDistribusi =
+    document.getElementById(
+    "totalDistribusi");
+
+    if(totalJadwal){
+
+        totalJadwal.innerText =
+        paket.length;
+    }
+
+    if(totalDistribusi){
+
+        totalDistribusi.innerText =
+        distribusi.length;
+    }
+}
+
+
+// ==========================
+// LOAD JADWAL
+// ==========================
+
+function loadJadwal(){
+
+    let body =
+    document.getElementById(
+    "jadwalBody");
+
+    if(!body) return;
+
+    body.innerHTML = "";
+
+    distribusi.forEach((item,i)=>{
+
+        body.innerHTML += `
+
+        <tr>
+
+            <td>${i+1}</td>
+
+            <td>${item.paket}</td>
+
+            <td>${item.sekolah}</td>
+
+            <td>${item.jumlahPorsi}</td>
+
+        </tr>
+
+        `;
+    });
+}
+
+// ==========================
+// LOAD DISTRIBUSI
+// ==========================
+
+function loadDistribusi(){
+
+    let body =
+    document.getElementById(
+    "distribusiBody");
+
+    if(!body) return;
+
+    body.innerHTML = "";
+
+    distribusi.forEach((item,i)=>{
+
+        body.innerHTML += `
+
+        <tr>
+
+            <td>${i+1}</td>
+
+            <td>${item.paket}</td>
+
+            <td>${item.sekolah}</td>
+
+            <td>${item.jumlahPorsi}</td>
+
+            <td>
+
+                <span class="
+                ${item.status === 'Proses'
+                ? 'status-proses'
+                : item.status === 'Dikirim'
+                ? 'status-kirim'
+                : 'status-selesai'}
+                ">
+
+                    ${item.status}
+
+                </span>
+
+            </td>
+
+            <td>
+
+                ${item.status !== "Selesai"
+                ? `
+
+                <button onclick="
+                konfirmasiSelesai(${i})
+                ">
+
+                    Konfirmasi
+
+                </button>
+
+                `
+                : "Sudah Diterima"}
+
+            </td>
+
+        </tr>
+
+        `;
+    });
+}
+
+function konfirmasiSelesai(index){
+
+    distribusi[index].status =
+    "Selesai";
+
+    localStorage.setItem(
+
+        "distribusi",
+
+        JSON.stringify(
+        distribusi)
+
+    );
+
+    loadDistribusi();
+
+    alert(
+    "Distribusi berhasil dikonfirmasi"
+    );
+}
+
+// ==========================
+// TAMBAH KOMENTAR
+// ==========================
+
+function tambahKomentar(){
+
+    let sekolah =
+    document.getElementById(
+    "namaSekolah").value;
+
+    let isi =
+    document.getElementById(
+    "isiKomentar").value;
+
+    if(!sekolah || !isi){
+
+        alert(
+        "Isi komentar dulu"
+        );
+
+        return;
+    }
+
+    komentar.push({
+
+        sekolah,
+        isi
+
+    });
+
+    localStorage.setItem(
+
+        "komentar",
+
+        JSON.stringify(
+        komentar)
+
+    );
+
+    loadKomentar();
+
+    document.getElementById(
+    "namaSekolah").value = "";
+
+    document.getElementById(
+    "isiKomentar").value = "";
+}
+
+
+// ==========================
+// LOAD KOMENTAR
+// ==========================
+
+function loadKomentar(){
+
+    let body =
+    document.getElementById(
+    "komentarBody");
+
+    if(!body) return;
+
+    body.innerHTML = "";
+
+    komentar.forEach((item,i)=>{
+
+        body.innerHTML += `
+
+        <tr>
+
+            <td>${i+1}</td>
+
+            <td>${item.sekolah}</td>
+
+            <td>${item.isi}</td>
+
+        </tr>
+
+        `;
+    });
+}
+
+
+// ==========================
+// AUTO LOAD
+// ==========================
+
+window.onload = function(){
+
+    loadDashboard();
+
+    loadJadwal();
+
+    loadDistribusi();
+
+    loadKomentar();
+}
+
+</script>
+
+</body>
+</html>

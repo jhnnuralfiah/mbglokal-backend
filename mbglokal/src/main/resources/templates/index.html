@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard MBG</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="dashboard">
+
+    <aside class="sidebar">
+        <h2>MBG</h2>
+        <ul>
+            <li><a href="index.html">🏠 Dashboard</a></li>
+            <li><a href="data.html">📊 Data</a></li>
+            <li><a href="profile.html">👤 Profile</a></li>
+            <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+        </ul>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <h3>Dashboard</h3>
+            <button onclick="toggleTheme()">🌙</button>
+        </div>
+
+        <div class="hero">
+            <img src="logo.png" class="hero-logo">
+            <h1>BADAN GIZI NASIONAL</h1>
+        </div>
+
+        <div class="cards">
+            <div class="card">Total Data<br><b>120</b></div>
+            <div class="card">Program<br><b>50</b></div>
+            <div class="card">Aktif<br><b>30</b></div>
+        </div>
+    </main>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
