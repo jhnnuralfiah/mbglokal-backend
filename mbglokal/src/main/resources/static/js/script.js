@@ -1,55 +1,169 @@
+const BASE_URL =
+    "http://localhost:8080/api";
+
+// ==========================
+// TOAST NOTIFICATION
+// ==========================
+
+function showToast(message, type) {
+
+    const toastContainer =
+        document.getElementById(
+            "toast"
+        );
+
+    if (!toastContainer) return;
+
+    const toast =
+        document.createElement(
+            "div"
+        );
+
+    toast.className =
+        `toast ${type}`;
+
+    toast.innerText =
+        message;
+
+    toastContainer.appendChild(
+        toast
+    );
+
+    setTimeout(() => {
+
+        toast.remove();
+
+    }, 3000);
+}
+
 // ==========================
 // LOGIN
 // ==========================
 
-function login(){
+async function login() {
 
     let username =
-    document.getElementById(
-    "username").value;
+        document.getElementById(
+            "username"
+        ).value;
 
     let password =
-    document.getElementById(
-    "password").value;
-
-    if(username === "admin"
-    && password === "123"){
-
-        localStorage.setItem(
-        "role",
-        "admin");
-
-        window.location.href =
-        "admin-dashboard.html";
-    }
-
-    else if(username === "petani"
-    && password === "123"){
-
-        localStorage.setItem(
-        "role",
-        "petani");
-
-        window.location.href =
-        "petani-dashboard.html";
-    }
-
-    else if(username === "sekolah"
-    && password === "123"){
-
-        localStorage.setItem(
-        "role",
-        "sekolah");
-
-        window.location.href =
-        "sekolah-dashboard.html";
-    }
-
-    else{
-
         document.getElementById(
-        "error").innerHTML =
-        "Username atau Password Salah!";
+            "password"
+        ).value;
+
+    if (!username || !password) {
+
+        showToast(
+            "Username dan password wajib diisi!",
+            "error"
+        );
+
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                "http://localhost:8080/api/auth/login",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        username: username,
+
+                        password: password
+                    })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (data.success) {
+
+            showToast(
+                "Login berhasil!",
+                "success"
+            );
+
+            localStorage.setItem(
+                "role",
+                data.role
+            );
+
+            localStorage.setItem(
+                "username",
+                data.username
+            );
+
+            localStorage.setItem(
+                "idUser",
+                data.idUser
+            );
+
+            // REDIRECT ROLE
+
+            if (data.role === "ADMIN") {
+
+                setTimeout(() => {
+
+                    window.location.href =
+                        "admin-dashboard.html";
+
+                }, 1200);
+            }
+
+            else if (
+                data.role === "PETANI"
+            ) {
+
+                setTimeout(() => {
+
+                    window.location.href =
+                        "petani-dashboard.html";
+
+                }, 1200);
+            }
+
+            else if (
+                data.role === "SEKOLAH"
+            ) {
+
+                setTimeout(() => {
+
+                    window.location.href =
+                        "sekolah-dashboard.html";
+
+                }, 1200);
+            }
+        }
+
+        else {
+
+            showToast(
+                data.message,
+                "error"
+            );
+        }
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+        showToast(
+            "Backend tidak terhubung!",
+            "error"
+        );
     }
 }
 
@@ -57,191 +171,193 @@ function login(){
 // LOGOUT
 // ==========================
 
-function logout(){
+function logout() {
+
+    showToast(
+        "Logout berhasil!",
+        "success"
+    );
 
     localStorage.removeItem(
-    "role");
+        "role"
+    );
 
-    window.location.href =
-    "login.html";
+    localStorage.removeItem(
+        "username"
+    );
+
+    localStorage.removeItem(
+        "idUser"
+    );
+
+    setTimeout(() => {
+
+        window.location.href =
+            "login.html";
+
+    }, 1000);
 }
 
 // ==========================
 // SHOW PAGE
 // ==========================
 
-function showPage(page){
+function showPage(page) {
 
     let pages =
-    document.querySelectorAll(
-    ".page");
+        document.querySelectorAll(
+            ".page");
 
-    pages.forEach(function(item){
+    pages.forEach(function (item) {
 
         item.classList.add(
-        "hidden");
+            "hidden");
     });
 
     document.getElementById(
-    page).classList.remove(
-    "hidden");
+        page).classList.remove(
+            "hidden");
 }
 
 // ==========================
-// KOMODITAS
+// KOMODITAS API
 // ==========================
 
-let komoditas =
-JSON.parse(
-localStorage.getItem(
-"komoditas")) || [];
+async function loadKomoditas() {
 
-function tambahKomoditas(){
+    let body =
+        document.getElementById(
+            "komoditasBody");
 
-    let nama =
-    document.getElementById(
-    "namaKomoditas").value;
+    if (!body) return;
 
-    let stok =
-    document.getElementById(
-    "stokKomoditas").value;
+    try {
 
-    if(!nama || !stok){
+        const response =
+            await fetch(
+                `${BASE_URL}/komoditas`
+            );
+
+        const data =
+            await response.json();
+
+        body.innerHTML = "";
+
+        data.forEach((item, i) => {
+
+            body.innerHTML += `
+
+            <tr>
+
+                <td>${i + 1}</td>
+
+                <td>${item.namaBahan}</td>
+
+                <td>
+                    ${item.stokSaatIni}
+                    ${item.satuan || "kg"}
+                </td>
+
+                <td>
+
+                    <button onclick="
+                    hapusKomoditas(
+                    ${item.idKomoditas}
+                    )">
+
+                        Hapus
+
+                    </button>
+
+                </td>
+
+            </tr>
+
+            `;
+        });
+
+        let total =
+            document.getElementById(
+                "totalKomoditas");
+
+        if (total) {
+
+            total.innerText =
+                data.length;
+        }
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+        alert(
+            "Gagal mengambil data komoditas"
+        );
+    }
+}
+
+function tambahKomoditas() {
+    console.log("masuk tambah komoditas");
+
+    let nama = document.getElementById("namaKomoditas").value;
+    let stok = document.getElementById("stokKomoditas").value;
+
+    if (!nama || !stok) {
+        alert("Data belum lengkap");
         return;
     }
 
-    komoditas.push({
-
-        nama,
-        stok
-
-    });
-
-    localStorage.setItem(
-
-        "komoditas",
-
-        JSON.stringify(
-        komoditas)
-
-    );
-
-    loadKomoditas();
-
-    document.getElementById(
-    "namaKomoditas").value = "";
-
-    document.getElementById(
-    "stokKomoditas").value = "";
+    fetch(`${BASE_URL}/komoditas`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            namaBahan: nama,
+            stokSaatIni: parseFloat(stok)
+        })
+    })
+        .then(res => {
+            if (!res.ok) throw new Error();
+            return res.json();
+        })
+        .then(() => {
+            loadKomoditas();
+        })
+        .catch(() => {
+            alert("Gagal tambah komoditas");
+        });
 }
 
-function loadKomoditas(){
+// ==========================
+// HAPUS KOMODITAS
+// ==========================
 
-    let body =
-    document.getElementById(
-    "komoditasBody");
+async function hapusKomoditas(id) {
 
-    if(!body) return;
+    try {
 
-    body.innerHTML = "";
-
-    komoditas.forEach((item,i)=>{
-
-        body.innerHTML += `
-
-        <tr>
-
-            <td>${i+1}</td>
-
-            <td>${item.nama}</td>
-
-            <td>${item.stok} kg</td>
-
-            <td>
-
-                <button onclick="
-                editKomoditas(${i})
-                ">
-
-                    Edit
-
-                </button>
-
-                <button onclick="
-                hapusKomoditas(${i})
-                ">
-
-                    Hapus
-
-                </button>
-
-            </td>
-
-        </tr>
-
-        `;
-    });
-
-    let total =
-    document.getElementById(
-    "totalKomoditas");
-
-    if(total){
-
-        total.innerText =
-        komoditas.length;
-    }
-}
-
-function editKomoditas(index){
-
-    let namaBaru =
-    prompt(
-    "Edit Nama Komoditas",
-    komoditas[index].nama
-    );
-
-    let stokBaru =
-    prompt(
-    "Edit Stok",
-    komoditas[index].stok
-    );
-
-    if(namaBaru && stokBaru){
-
-        komoditas[index].nama =
-        namaBaru;
-
-        komoditas[index].stok =
-        stokBaru;
-
-        localStorage.setItem(
-
-            "komoditas",
-
-            JSON.stringify(
-            komoditas)
-
+        await fetch(
+            `${BASE_URL}/komoditas/${id}`,
+            {
+                method: "DELETE"
+            }
         );
 
         loadKomoditas();
+
     }
-}
 
-function hapusKomoditas(index){
+    catch (error) {
 
-    komoditas.splice(index,1);
+        console.log(error);
 
-    localStorage.setItem(
-
-        "komoditas",
-
-        JSON.stringify(
-        komoditas)
-
-    );
-
-    loadKomoditas();
+        alert(
+            "Gagal menghapus komoditas"
+        );
+    }
 }
 
 // ==========================
@@ -249,27 +365,27 @@ function hapusKomoditas(index){
 // ==========================
 
 let gudang =
-JSON.parse(
-localStorage.getItem(
-"gudang")) || [];
+    JSON.parse(
+        localStorage.getItem(
+            "gudang")) || [];
 
-function loadGudang(){
+function loadGudang() {
 
     let body =
-    document.getElementById(
-    "gudangBody");
+        document.getElementById(
+            "gudangBody");
 
-    if(!body) return;
+    if (!body) return;
 
     body.innerHTML = "";
 
-    gudang.forEach((item,i)=>{
+    gudang.forEach((item, i) => {
 
         body.innerHTML += `
 
         <tr>
 
-            <td>${i+1}</td>
+            <td>${i + 1}</td>
 
             <td>${item.nama}</td>
 
@@ -281,40 +397,40 @@ function loadGudang(){
     });
 
     let total =
-    document.getElementById(
-    "totalGudang");
+        document.getElementById(
+            "totalGudang");
 
-    if(total){
+    if (total) {
 
         total.innerText =
-        gudang.length;
+            gudang.length;
     }
 }
 
 function tambahGudang(
-komoditas,
-jumlah
-){
+    komoditas,
+    jumlah
+) {
 
     let ditemukan =
-    gudang.find(item =>
-    item.nama === komoditas);
+        gudang.find(item =>
+            item.nama === komoditas);
 
-    if(ditemukan){
+    if (ditemukan) {
 
         ditemukan.stok =
-        parseInt(
-        ditemukan.stok)
-        +
-        parseInt(jumlah);
+            parseInt(
+                ditemukan.stok)
+            +
+            parseInt(jumlah);
     }
 
-    else{
+    else {
 
         gudang.push({
 
-            nama:komoditas,
-            stok:parseInt(jumlah)
+            nama: komoditas,
+            stok: parseInt(jumlah)
 
         });
     }
@@ -324,7 +440,7 @@ jumlah
         "gudang",
 
         JSON.stringify(
-        gudang)
+            gudang)
 
     );
 
@@ -335,389 +451,447 @@ jumlah
 // PAKET MENU
 // ==========================
 
-let paket =
-JSON.parse(
-localStorage.getItem(
-"paket")) || [];
+async function loadPaket() {
 
-function tambahPaket(){
+    let body =
+        document.getElementById(
+            "paketBody"
+        );
+
+    if (!body) return;
+
+    try {
+        const response =
+            await fetch(
+                `${BASE_URL}/paket-menu`
+            );
+
+        const data =
+            await response.json();
+
+        body.innerHTML = "";
+
+        data.forEach((item, i) => {
+
+            body.innerHTML += `
+
+            <tr>
+
+                <td>${i + 1}</td>
+
+                <td>${item.namaMenu}</td>
+
+                <td>${item.deskripsiGizi}</td>
+
+                <td>
+
+                    <button onclick="
+                    hapusPaket(
+                    ${item.idMenu}
+                    )">
+
+                        Hapus
+
+                    </button>
+
+                </td>
+
+            </tr>
+
+            `;
+        });
+
+        document.getElementById(
+            "totalPaket"
+        ).innerText = data.length;
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+        alert(
+            "Gagal memuat data paket menu"
+        );
+    }
+}
+
+async function tambahPaket() {
 
     let nama =
-    document.getElementById(
-    "namaPaket").value;
+        document.getElementById(
+            "namaPaket"
+        ).value;
 
-    let isi =
-    document.getElementById(
-    "isiPaket").value;
+    let deskripsi =
+        document.getElementById(
+            "isiPaket"
+        ).value;
 
-    let stok =
-    document.getElementById(
-    "stokPaket").value;
+    if (!nama || !deskripsi) {
 
-    if(!nama || !isi || !stok){
+        alert(
+            "Data belum lengkap"
+        );
+
         return;
     }
 
-    paket.push({
+    try {
 
-        nama,
-        isi,
-        stok:parseInt(stok) || 0
+        await fetch(
+            `${BASE_URL}/paket-menu`,
+            {
+                method: "POST",
 
-    });
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
 
-    localStorage.setItem(
+                body: JSON.stringify({
 
-        "paket",
+                    namaMenu: nama,
 
-        JSON.stringify(
-        paket)
-
-    );
-
-    loadPaket();
-
-    document.getElementById(
-    "namaPaket").value = "";
-
-    document.getElementById(
-    "isiPaket").value = "";
-
-    document.getElementById(
-    "stokPaket").value = "";
-}
-
-function loadPaket(){
-
-    let body =
-    document.getElementById(
-    "paketBody");
-
-    if(!body) return;
-
-    body.innerHTML = "";
-
-    paket.forEach((item,i)=>{
-
-        body.innerHTML += `
-
-        <tr>
-
-            <td>${i+1}</td>
-
-            <td>${item.nama}</td>
-
-            <td>${item.isi}</td>
-
-            <td>${item.stok}</td>
-
-            <td>
-
-                <button onclick="
-                editPaket(${i})
-                ">
-
-                    Edit
-
-                </button>
-
-                <button onclick="
-                hapusPaket(${i})
-                ">
-
-                    Hapus
-
-                </button>
-
-            </td>
-
-        </tr>
-
-        `;
-    });
-}
-
-function editPaket(index){
-
-    let namaBaru =
-    prompt(
-    "Edit Nama Paket",
-    paket[index].nama
-    );
-
-    let isiBaru =
-    prompt(
-    "Edit Isi Paket",
-    paket[index].isi
-    );
-
-    let stokBaru =
-    prompt(
-    "Edit Stok",
-    paket[index].stok
-    );
-
-    if(namaBaru &&
-       isiBaru &&
-       stokBaru){
-
-        paket[index].nama =
-        namaBaru;
-
-        paket[index].isi =
-        isiBaru;
-
-        paket[index].stok =
-        parseInt(stokBaru);
-
-        localStorage.setItem(
-
-            "paket",
-
-            JSON.stringify(
-            paket)
-
+                    deskripsiGizi:
+                        deskripsi
+                })
+            }
         );
 
         loadPaket();
+
+        document.getElementById(
+            "namaPaket"
+        ).value = "";
+
+        document.getElementById(
+            "isiPaket"
+        ).value = "";
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+        alert(
+            "Gagal menambah paket"
+        );
     }
 }
 
-function hapusPaket(index){
+async function hapusPaket(id) {
 
-    paket.splice(index,1);
+    try {
 
-    localStorage.setItem(
+        await fetch(
+            `${BASE_URL}/paket-menu/${id}`,
+            {
+                method: "DELETE"
+            }
+        );
 
-        "paket",
+        loadPaket();
 
-        JSON.stringify(
-        paket)
+    }
 
-    );
+    catch (error) {
 
-    loadPaket();
+        console.log(error);
+
+        alert(
+            "Gagal menghapus paket"
+        );
+    }
 }
 
 // ==========================
 // DISTRIBUSI
 // ==========================
 
-let distribusi =
-JSON.parse(
-localStorage.getItem(
-"distribusi")) || [];
-
-function tambahDistribusi(){
-
-    let paketMenu =
-    document.getElementById(
-    "paketDistribusi").value;
-
-    let sekolah =
-    document.getElementById(
-    "tujuanSekolah").value;
-
-    let jumlahPaket =
-    parseInt(
-    document.getElementById(
-    "jumlahPaket").value);
-
-    let status =
-    document.getElementById(
-    "statusDistribusi").value;
-
-    let cariPaket =
-    paket.find(item =>
-    item.nama === paketMenu);
-
-    if(!cariPaket){
-
-        alert(
-        "Paket tidak ditemukan"
-        );
-
-        return;
-    }
-
-    if(cariPaket.stok <
-       jumlahPaket){
-
-        alert(
-        "Stok paket tidak cukup"
-        );
-
-        return;
-    }
-
-    cariPaket.stok -=
-    jumlahPaket;
-
-    distribusi.push({
-
-        paket:paketMenu,
-        sekolah,
-        jumlahPaket,
-        jumlahPorsi:
-        jumlahPaket,
-        status
-
-    });
-
-    localStorage.setItem(
-
-        "paket",
-
-        JSON.stringify(
-        paket)
-
-    );
-
-    localStorage.setItem(
-
-        "distribusi",
-
-        JSON.stringify(
-        distribusi)
-
-    );
-
-    loadPaket();
-
-    loadDistribusi();
-
-    document.getElementById(
-    "paketDistribusi").value = "";
-
-    document.getElementById(
-    "tujuanSekolah").value = "";
-
-    document.getElementById(
-    "jumlahPaket").value = "";
-
-    document.getElementById(
-    "statusDistribusi").value = "";
-}
-
-function loadDistribusi(){
+async function loadDistribusi() {
 
     let body =
-    document.getElementById(
-    "distribusiBody");
+        document.getElementById(
+            "distribusiBody");
 
-    if(!body) return;
+    if (!body) return;
 
-    body.innerHTML = "";
+    try {
+        const response =
+            await fetch(
+                `${BASE_URL}/distribusi`);
 
-    distribusi.forEach((item,i)=>{
+        const data =
+            await response.json();
 
-        body.innerHTML += `
+        body.innerHTML = "";
 
-        <tr>
+        data.forEach((item, i) => {
 
-            <td>${i+1}</td>
+            body.innerHTML += `
 
-            <td>${item.paket}</td>
+            <tr>
 
-            <td>${item.sekolah}</td>
+                <td>${i + 1}</td>
 
-            <td>${item.jumlahPorsi}</td>
+                <td>
+                    ${item.paketMenu?.namaMenu || "-"}
+                </td>
 
-            <td>
+                <td>
+                    ${item.penerimaManfaat?.namaInstansi || "-"}
+                </td>
 
-                <select onchange="
-                updateDistribusi(
-                ${i},
-                this.value
-                )">
+                <td>
+                    ${item.tanggalKirim}
+                </td>
 
-                    <option value="Proses"
-                    ${item.status === "Proses"
+                <td>
+                    ${item.jumlahPorsiDikirim}
+                </td>
+
+                <td>
+
+                    <select onchange="
+                    updateDistribusi(
+                    ${item.idDistribusi},
+                    this.value
+                    )">
+
+                        <option value="Proses"
+                        ${item.status === "Proses"
                     ? "selected" : ""}>
 
-                        Proses
+                            Proses
 
-                    </option>
+                        </option>
 
-                    <option value="Dikirim"
-                    ${item.status === "Dikirim"
+                        <option value="Dikirim"
+                        ${item.status === "Dikirim"
                     ? "selected" : ""}>
 
-                        Dikirim
+                            Dikirim
 
-                    </option>
+                        </option>
 
-                    <option value="Selesai"
-                    ${item.status === "Selesai"
+                        <option value="Selesai"
+                        ${item.status === "Selesai"
                     ? "selected" : ""}>
 
-                        Selesai
+                            Selesai
 
-                    </option>
+                        </option>
 
-                </select>
+                    </select>
 
-            </td>
+                </td>
 
-            <td>
+                <td>
 
-                <button onclick="
-                hapusDistribusi(${i})
-                ">
+                    <button onclick="
+                    hapusDistribusi(
+                    ${item.idDistribusi}
+                    )">
 
-                    Hapus
+                        Hapus
 
-                </button>
+                    </button>
 
-            </td>
+                </td>
 
-        </tr>
+            </tr>
+            `;
+        });
 
-        `;
-    });
+        document.getElementById(
+            "totalDistribusi"
+        ).innerText = data.length;
 
-    let total =
-    document.getElementById(
-    "totalDistribusi");
+    }
 
-    if(total){
+    catch (error) {
 
-        total.innerText =
-        distribusi.length;
+        console.log(error);
+
+        alert(
+            "Gagal memuat distribusi");
     }
 }
 
-function updateDistribusi(index,status){
 
-    distribusi[index].status =
-    status;
+// ==========================
+// TAMBAH DISTRIBUSI
+// ==========================
 
-    localStorage.setItem(
+async function tambahDistribusi() {
 
-        "distribusi",
+    const idMenu =
+        document.getElementById(
+            "idMenuDistribusi").value;
 
-        JSON.stringify(
-        distribusi)
+    const idPenerima =
+        document.getElementById(
+            "idPenerimaDistribusi").value;
 
-    );
+    const tanggal =
+        document.getElementById(
+            "tanggalDistribusi").value;
 
-    loadDistribusi();
+    const jumlahPorsi =
+        document.getElementById(
+            "jumlahPorsi").value;
+
+    const status =
+        document.getElementById(
+            "statusDistribusi").value;
+
+    if (
+        !idMenu ||
+        !idPenerima ||
+        !tanggal ||
+        !jumlahPorsi ||
+        !status
+    ) {
+
+        alert("Data belum lengkap");
+        return;
+    }
+
+    const dataDistribusi = {
+
+        paketMenu: {
+            idMenu: parseInt(idMenu)
+        },
+
+        penerimaManfaat: {
+            idUser: parseInt(idPenerima)
+        },
+
+        tanggalKirim: tanggal,
+
+        jumlahPorsiDikirim:
+            parseInt(jumlahPorsi),
+
+        status: status
+    };
+
+    try {
+        console.log(dataDistribusi);
+        const response =
+            await fetch(
+                `${BASE_URL}/distribusi`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify(
+                        dataDistribusi)
+                });
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            console.log(errorText);
+
+            alert(errorText);
+
+            return;
+        }
+
+        loadDistribusi();
+
+        document.getElementById(
+            "idMenuDistribusi").value = "";
+
+        document.getElementById(
+            "idPenerimaDistribusi").value = "";
+
+        document.getElementById(
+            "tanggalDistribusi").value = "";
+
+        document.getElementById(
+            "jumlahPorsi").value = "";
+
+        document.getElementById(
+            "statusDistribusi").value = "";
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+        alert(
+            "Gagal tambah distribusi");
+    }
 }
 
-function hapusDistribusi(index){
 
-    distribusi.splice(index,1);
+// ==========================
+// UPDATE STATUS
+// ==========================
 
-    localStorage.setItem(
+async function updateDistribusi(
+    id,
+    status
+) {
 
-        "distribusi",
+    try {
 
-        JSON.stringify(
-        distribusi)
+        await fetch(
+            `${BASE_URL}/distribusi/${id}/status?status=${status}`,
+            {
+                method: "PUT"
+            });
 
-    );
+        loadDistribusi();
 
-    loadDistribusi();
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+        alert(
+            "Gagal update status");
+    }
+}
+
+
+// ==========================
+// HAPUS
+// ==========================
+
+async function hapusDistribusi(id) {
+
+    try {
+
+        await fetch(
+            `${BASE_URL}/distribusi/${id}`,
+            {
+                method: "DELETE"
+            });
+
+        loadDistribusi();
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+        alert(
+            "Gagal hapus distribusi");
+    }
 }
 
 // ==========================
@@ -725,27 +899,27 @@ function hapusDistribusi(index){
 // ==========================
 
 let pesanan =
-JSON.parse(
-localStorage.getItem(
-"pesanan")) || [];
+    JSON.parse(
+        localStorage.getItem(
+            "pesanan")) || [];
 
-function tambahPesanan(){
+function tambahPesanan() {
 
     let petani =
-    document.getElementById(
-    "namaPetani").value;
+        document.getElementById(
+            "namaPetani").value;
 
     let komoditas =
-    document.getElementById(
-    "komoditasPesanan").value;
+        document.getElementById(
+            "komoditasPesanan").value;
 
     let jumlah =
-    document.getElementById(
-    "jumlahPesanan").value;
+        document.getElementById(
+            "jumlahPesanan").value;
 
-    if(!petani ||
-       !komoditas ||
-       !jumlah){
+    if (!petani ||
+        !komoditas ||
+        !jumlah) {
 
         return;
     }
@@ -755,7 +929,7 @@ function tambahPesanan(){
         petani,
         komoditas,
         jumlah,
-        status:"Menunggu"
+        status: "Menunggu"
 
     });
 
@@ -764,39 +938,39 @@ function tambahPesanan(){
         "pesanan",
 
         JSON.stringify(
-        pesanan)
+            pesanan)
 
     );
 
     loadPesanan();
 
     document.getElementById(
-    "namaPetani").value = "";
+        "namaPetani").value = "";
 
     document.getElementById(
-    "komoditasPesanan").value = "";
+        "komoditasPesanan").value = "";
 
     document.getElementById(
-    "jumlahPesanan").value = "";
+        "jumlahPesanan").value = "";
 }
 
-function loadPesanan(){
+function loadPesanan() {
 
     let body =
-    document.getElementById(
-    "pesananBody");
+        document.getElementById(
+            "pesananBody");
 
-    if(!body) return;
+    if (!body) return;
 
     body.innerHTML = "";
 
-    pesanan.forEach((item,i)=>{
+    pesanan.forEach((item, i) => {
 
         body.innerHTML += `
 
         <tr>
 
-            <td>${i+1}</td>
+            <td>${i + 1}</td>
 
             <td>${item.petani}</td>
 
@@ -817,27 +991,27 @@ function loadPesanan(){
 // ==========================
 
 let komentar =
-JSON.parse(
-localStorage.getItem(
-"komentar")) || [];
+    JSON.parse(
+        localStorage.getItem(
+            "komentar")) || [];
 
-function loadKomentar(){
+function loadKomentar() {
 
     let body =
-    document.getElementById(
-    "komentarBody");
+        document.getElementById(
+            "komentarBody");
 
-    if(!body) return;
+    if (!body) return;
 
     body.innerHTML = "";
 
-    komentar.forEach((item,i)=>{
+    komentar.forEach((item, i) => {
 
         body.innerHTML += `
 
         <tr>
 
-            <td>${i+1}</td>
+            <td>${i + 1}</td>
 
             <td>${item.sekolah}</td>
 
@@ -850,10 +1024,119 @@ function loadKomentar(){
 }
 
 // ==========================
+// LOAD DROPDOWN PAKET MENU
+// ==========================
+
+async function loadDropdownPaket() {
+
+    const select =
+        document.getElementById(
+            "idMenuDistribusi"
+        );
+
+    if (!select) return;
+
+    try {
+
+        const response =
+            await fetch(
+                `${BASE_URL}/paket-menu`
+            );
+
+        const data =
+            await response.json();
+
+        console.log(data);
+
+        select.innerHTML = `
+
+            <option value="">
+                Pilih Paket Menu
+            </option>
+
+        `;
+
+        data.forEach(item => {
+
+            select.innerHTML += `
+
+                <option value="${item.idMenu}">
+
+                    ${item.namaMenu}
+
+                </option>
+
+            `;
+        });
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+    }
+}
+
+// ==========================
+// LOAD DROPDOWN PENERIMA
+// ==========================
+
+async function loadDropdownPenerima() {
+
+    const select =
+        document.getElementById(
+            "idPenerimaDistribusi"
+        );
+
+    if (!select) return;
+
+    try {
+
+        const response =
+            await fetch(
+                `${BASE_URL}/penerima-manfaat`
+            );
+
+        const data =
+            await response.json();
+
+        select.innerHTML = `
+
+            <option value="">
+                Pilih Penerima
+            </option>
+
+        `;
+
+        data.forEach(item => {
+
+            if (
+                item.role === "SEKOLAH"
+            ) {
+
+                select.innerHTML += `
+
+                    <option value="${item.idUser}">
+                        ${item.namaInstansi}
+                    </option>
+
+                `;
+            }
+        });
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+    }
+}
+
+// ==========================
 // AUTO LOAD
 // ==========================
 
-window.onload = function(){
+window.onload = function () {
 
     loadKomoditas();
 
@@ -866,4 +1149,8 @@ window.onload = function(){
     loadPesanan();
 
     loadKomentar();
+
+    loadDropdownPaket();
+
+    loadDropdownPenerima();
 }

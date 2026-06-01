@@ -20,22 +20,37 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        // 1. Cari user di database berdasarkan username yang diketik
+
         Optional<User> userOpt = userRepository.findByUsername(request.getUsername());
 
-        // 2. Kalau usernamenya ketemu
         if (userOpt.isPresent()) {
+
             User user = userOpt.get();
-            
-            // 3. Cocokkan passwordnya
+
             if (user.getPassword().equals(request.getPassword())) {
-                return ResponseEntity.ok("Login Berhasil! Selamat datang, " + user.getUsername());
+
+                return ResponseEntity.ok(
+                        java.util.Map.of(
+                                "success", true,
+                                "message", "Login berhasil",
+                                "username", user.getUsername(),
+                                "role", user.getRole(),
+                                "idUser", user.getIdUser()));
+
             } else {
-                return ResponseEntity.status(401).body("Error: Password salah!");
+
+                return ResponseEntity.status(401).body(
+                        java.util.Map.of(
+                                "success", false,
+                                "message", "Password salah"));
             }
+
         } else {
-            // 4. Kalau usernamenya nggak ada di database
-            return ResponseEntity.status(404).body("Error: Username tidak ditemukan!");
+
+            return ResponseEntity.status(404).body(
+                    java.util.Map.of(
+                            "success", false,
+                            "message", "Username tidak ditemukan"));
         }
     }
 }
