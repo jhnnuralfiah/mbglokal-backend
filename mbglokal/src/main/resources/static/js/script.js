@@ -1481,6 +1481,180 @@ async function hapusDetailMenu(id) {
 
 }
 
+async function loadDashboardPreview() {
+
+    const body =
+        document.getElementById("dashboardDistribusiPreview");
+
+    if (!body) return;
+
+    try {
+
+        const res =
+            await fetch(`${BASE_URL}/distribusi`);
+
+        const data =
+            await res.json();
+
+        body.innerHTML = "";
+
+        // ambil 5 data terbaru saja biar ringkas
+        data.slice(0, 5).forEach(item => {
+
+            body.innerHTML += `
+                <tr>
+                    <td>${item.paketMenu?.namaMenu || "-"}</td>
+                    <td>${item.penerimaManfaat?.namaInstansi || "-"}</td>
+                    <td>${item.jumlahPorsiDikirim}</td>
+                    <td>${item.status}</td>
+                </tr>
+            `;
+        });
+
+    } catch (error) {
+
+        console.log(error);
+
+        showToast("Gagal load dashboard preview", "error");
+    }
+}
+
+async function loadKomoditasPetani() {
+
+    const body = document.getElementById("komoditasBody");
+    if (!body) return;
+
+    const idUser = localStorage.getItem("idUser");
+
+    try {
+        const response = await fetch(`${BASE_URL}/komoditas`);
+        const data = await response.json();
+
+        // FILTER (kalau backend belum support user)
+        const filtered = data.filter(item =>
+            item.petani?.idUser == idUser || item.petani == null
+        );
+
+        body.innerHTML = "";
+
+        filtered.forEach((item, i) => {
+            body.innerHTML += `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${item.namaBahan}</td>
+                    <td>${item.stokSaatIni} ${item.satuan || "kg"}</td>
+                </tr>
+            `;
+        });
+
+        document.getElementById("totalKomoditas").innerText = filtered.length;
+
+    } catch (error) {
+        console.log(error);
+        showToast("Gagal load stok petani", "error");
+    }
+}
+
+async function loadPermintaan() {
+
+    const body = document.getElementById("permintaanBody");
+    if (!body) return;
+
+    // sementara dummy dulu
+    const data = [
+        { komoditas: "Beras", jumlah: 10, status: "Menunggu" },
+        { komoditas: "Sayur", jumlah: 5, status: "Disetujui" }
+    ];
+
+    body.innerHTML = "";
+
+    data.forEach((item, i) => {
+        body.innerHTML += `
+            <tr>
+                <td>${i + 1}</td>
+                <td>${item.komoditas}</td>
+                <td>${item.jumlah}</td>
+                <td>${item.status}</td>
+            </tr>
+        `;
+    });
+
+    document.getElementById("totalPermintaan").innerText = data.length;
+}
+
+async function loadDashboardPetani() {
+
+    const idUser = localStorage.getItem("idUser");
+
+    try {
+        const response = await fetch(`${BASE_URL}/komoditas`);
+        const data = await response.json();
+
+        const mine = data.filter(item =>
+            item.petani?.idUser == idUser || item.petani == null
+        );
+
+        // total
+        document.getElementById("totalKomoditas").innerText = mine.length;
+
+        // stok menipis (<= 10 kg)
+        const lowStock = mine.filter(item => item.stokSaatIni <= 10);
+        document.getElementById("stokMenipis").innerText = lowStock.length;
+
+        // stok terendah
+        if (mine.length > 0) {
+            const lowest = mine.reduce((a, b) =>
+                a.stokSaatIni < b.stokSaatIni ? a : b
+            );
+
+            document.getElementById("stokTerendah").innerText =
+                `${lowest.namaBahan} (${lowest.stokSaatIni} ${lowest.satuan || "kg"})`;
+        }
+
+    } catch (error) {
+        console.log(error);
+        showToast("Gagal load dashboard petani", "error");
+    }
+
+    // dummy permintaan dulu
+    const permintaan = 2; // nanti dari API beneran
+    document.getElementById("totalPermintaan").innerText = permintaan;
+}
+
+async function loadDashboardSekolah() {
+
+    const idUser = localStorage.getItem("idUser");
+
+    try {
+        const response = await fetch(`${BASE_URL}/distribusi`);
+        const data = await response.json();
+
+        // filter hanya untuk sekolah login
+        const mine = data.filter(item =>
+            item.penerimaManfaat?.idUser == idUser
+        );
+
+        document.getElementById("totalDistribusi").innerText = mine.length;
+
+        const proses = mine.filter(d => d.status === "Proses").length;
+        const selesai = mine.filter(d => d.status === "Selesai").length;
+
+        document.getElementById("prosesDistribusi").innerText = proses;
+        document.getElementById("selesaiDistribusi").innerText = selesai;
+
+        // status terbaru
+        if (mine.length > 0) {
+            const latest = mine[mine.length - 1];
+
+            document.getElementById("statusTerbaru").innerText =
+                `${latest.paketMenu?.namaMenu || "-"} - ${latest.status}`;
+        }
+
+    } catch (error) {
+        console.log(error);
+        showToast("Gagal load dashboard sekolah", "error");
+    }
+}
 
 // ==========================
 // AUTO LOAD
@@ -1488,6 +1662,18 @@ async function hapusDetailMenu(id) {
 
 window.onload = function () {
     showPage("dashboard");
+
+    const role = localStorage.getItem("role");
+
+    if (role === "PETANI") {
+        loadDashboardPetani();
+        loadKomoditasPetani();
+        loadPermintaan();
+    }
+
+    loadDashboardSekolah();
+
+    loadDashboardPreview();
 
     loadDetailMenu();
 

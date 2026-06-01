@@ -76,38 +76,44 @@
                 <h1>Dashboard Admin</h1>
 
             </div>
-
             <div class="card-container">
 
                 <div class="card">
-
-                    <h3>Total Komoditas</h3>
-
-                    <p id="totalKomoditas">
-                        0
-                    </p>
-
+                    <h3>Komoditas Tersedia</h3>
+                    <p id="totalKomoditas">0</p>
+                    <small>Data bahan baku aktif</small>
                 </div>
 
                 <div class="card">
-
-                    <h3>Total Paket Menu</h3>
-
-                    <p id="totalPaket">
-                        0
-                    </p>
-
+                    <h3>Paket Menu Aktif</h3>
+                    <p id="totalPaket">0</p>
+                    <small>Menu yang tersedia</small>
                 </div>
 
                 <div class="card">
-
-                    <h3>Total Distribusi</h3>
-
-                    <p id="totalDistribusi">
-                        0
-                    </p>
-
+                    <h3>Distribusi Berjalan</h3>
+                    <p id="totalDistribusi">0</p>
+                    <small>Status pengiriman sistem</small>
                 </div>
+
+            </div>
+
+            <div class="dashboard-section">
+                <br>
+                <h2>Distribusi Terbaru</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Menu</th>
+                            <th>Penerima</th>
+                            <th>Porsi</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="dashboardDistribusiPreview"></tbody>
+                </table>
 
             </div>
 
