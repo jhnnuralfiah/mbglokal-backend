@@ -292,8 +292,9 @@ async function loadKomoditas() {
 
         console.log(error);
 
-        alert(
-            "Gagal mengambil data komoditas"
+        showToast(
+            "Gagal mengambil data komoditas",
+            "error"
         );
     }
 }
@@ -305,7 +306,10 @@ function tambahKomoditas() {
     let stok = document.getElementById("stokKomoditas").value;
 
     if (!nama || !stok) {
-        alert("Data belum lengkap");
+        showToast(
+            "Data komoditas belum lengkap",
+            "error"
+        );
         return;
     }
 
@@ -324,10 +328,28 @@ function tambahKomoditas() {
             return res.json();
         })
         .then(() => {
+
+            showToast(
+                "Komoditas berhasil ditambahkan",
+                "success"
+            );
+
             loadKomoditas();
+
+            document.getElementById(
+                "namaKomoditas"
+            ).value = "";
+
+            document.getElementById(
+                "stokKomoditas"
+            ).value = "";
         })
         .catch(() => {
-            alert("Gagal tambah komoditas");
+
+            showToast(
+                "Gagal tambah komoditas",
+                "error"
+            );
         });
 }
 
@@ -346,6 +368,11 @@ async function hapusKomoditas(id) {
             }
         );
 
+        showToast(
+            "Komoditas berhasil dihapus",
+            "success"
+        );
+
         loadKomoditas();
 
     }
@@ -354,8 +381,9 @@ async function hapusKomoditas(id) {
 
         console.log(error);
 
-        alert(
-            "Gagal menghapus komoditas"
+        showToast(
+            "Gagal menghapus komoditas",
+            "error"
         );
     }
 }
@@ -511,11 +539,13 @@ async function loadPaket() {
 
         console.log(error);
 
-        alert(
-            "Gagal memuat data paket menu"
+        showToast(
+            "Gagal memuat data paket menu",
+            "error"
         );
     }
 }
+
 
 async function tambahPaket() {
 
@@ -531,8 +561,9 @@ async function tambahPaket() {
 
     if (!nama || !deskripsi) {
 
-        alert(
-            "Data belum lengkap"
+        showToast(
+            "Data paket menu belum lengkap",
+            "error"
         );
 
         return;
@@ -560,6 +591,11 @@ async function tambahPaket() {
             }
         );
 
+        showToast(
+            "Paket menu berhasil ditambahkan",
+            "success"
+        );
+
         loadPaket();
 
         document.getElementById(
@@ -576,8 +612,9 @@ async function tambahPaket() {
 
         console.log(error);
 
-        alert(
-            "Gagal menambah paket"
+        showToast(
+            "Gagal menambah paket",
+            "error"
         );
     }
 }
@@ -593,6 +630,11 @@ async function hapusPaket(id) {
             }
         );
 
+        showToast(
+            "Paket menu berhasil dihapus",
+            "success"
+        );
+
         loadPaket();
 
     }
@@ -601,8 +643,9 @@ async function hapusPaket(id) {
 
         console.log(error);
 
-        alert(
-            "Gagal menghapus paket"
+        showToast(
+            "Gagal menghapus paket",
+            "error"
         );
     }
 }
@@ -614,113 +657,53 @@ async function hapusPaket(id) {
 async function loadDistribusi() {
 
     let body =
-        document.getElementById(
-            "distribusiBody");
+        document.getElementById("distribusiBody");
 
     if (!body) return;
 
-    try {
-        const response =
-            await fetch(
-                `${BASE_URL}/distribusi`);
+    const role = localStorage.getItem("role");
+    const idUser = localStorage.getItem("idUser");
 
-        const data =
-            await response.json();
+    let url = `${BASE_URL}/distribusi`;
+
+    // kalau sekolah → filter user
+    if (role === "SEKOLAH") {
+        url = `${BASE_URL}/distribusi/user/${idUser}`;
+    }
+
+    try {
+
+        const response = await fetch(url);
+        const data = await response.json();
 
         body.innerHTML = "";
 
         data.forEach((item, i) => {
 
             body.innerHTML += `
-
-            <tr>
-
-                <td>${i + 1}</td>
-
-                <td>
-                    ${item.paketMenu?.namaMenu || "-"}
-                </td>
-
-                <td>
-                    ${item.penerimaManfaat?.namaInstansi || "-"}
-                </td>
-
-                <td>
-                    ${item.tanggalKirim}
-                </td>
-
-                <td>
-                    ${item.jumlahPorsiDikirim}
-                </td>
-
-                <td>
-
-                    <select onchange="
-                    updateDistribusi(
-                    ${item.idDistribusi},
-                    this.value
-                    )">
-
-                        <option value="Proses"
-                        ${item.status === "Proses"
-                    ? "selected" : ""}>
-
-                            Proses
-
-                        </option>
-
-                        <option value="Dikirim"
-                        ${item.status === "Dikirim"
-                    ? "selected" : ""}>
-
-                            Dikirim
-
-                        </option>
-
-                        <option value="Selesai"
-                        ${item.status === "Selesai"
-                    ? "selected" : ""}>
-
-                            Selesai
-
-                        </option>
-
-                    </select>
-
-                </td>
-
-                <td>
-
-                    <button onclick="
-                    hapusDistribusi(
-                    ${item.idDistribusi}
-                    )">
-
-                        Hapus
-
-                    </button>
-
-                </td>
-
-            </tr>
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${item.paketMenu?.namaMenu || "-"}</td>
+                    <td>${item.penerimaManfaat?.namaInstansi || "-"}</td>
+                    <td>${item.tanggalKirim}</td>
+                    <td>${item.jumlahPorsiDikirim}</td>
+                    <td>${item.status}</td>
+                    <td>
+                        <button onclick="hapusDistribusi(${item.idDistribusi})">
+                            Hapus
+                        </button>
+                    </td>
+                </tr>
             `;
         });
 
-        document.getElementById(
-            "totalDistribusi"
-        ).innerText = data.length;
+        document.getElementById("totalDistribusi").innerText = data.length;
 
-    }
-
-    catch (error) {
-
+    } catch (error) {
         console.log(error);
-
-        alert(
-            "Gagal memuat distribusi");
+        showToast("Gagal memuat distribusi", "error");
     }
 }
-
 
 // ==========================
 // TAMBAH DISTRIBUSI
@@ -756,7 +739,10 @@ async function tambahDistribusi() {
         !status
     ) {
 
-        alert("Data belum lengkap");
+        showToast(
+            "Data distribusi belum lengkap",
+            "error"
+        );
         return;
     }
 
@@ -779,7 +765,7 @@ async function tambahDistribusi() {
     };
 
     try {
-        console.log(dataDistribusi);
+
         const response =
             await fetch(
                 `${BASE_URL}/distribusi`,
@@ -795,19 +781,29 @@ async function tambahDistribusi() {
                         dataDistribusi)
                 });
 
-        if (!response.ok) {
+        const data =
+            await response.json();
 
-            const errorText =
-                await response.text();
+        // JIKA GAGAL DARI BACKEND
+        if (data.success === false) {
 
-            console.log(errorText);
-
-            alert(errorText);
+            showToast(
+                data.message,
+                "error"
+            );
 
             return;
         }
 
+        // JIKA SUKSES
+        showToast(
+            "Distribusi berhasil ditambahkan",
+            "success"
+        );
+
         loadDistribusi();
+
+        loadKomoditas();
 
         document.getElementById(
             "idMenuDistribusi").value = "";
@@ -830,8 +826,10 @@ async function tambahDistribusi() {
 
         console.log(error);
 
-        alert(
-            "Gagal tambah distribusi");
+        showToast(
+            "Gagal tambah distribusi",
+            "error"
+        );
     }
 }
 
@@ -853,6 +851,11 @@ async function updateDistribusi(
                 method: "PUT"
             });
 
+        showToast(
+            "Status distribusi berhasil diperbarui",
+            "success"
+        );
+
         loadDistribusi();
 
     }
@@ -861,8 +864,10 @@ async function updateDistribusi(
 
         console.log(error);
 
-        alert(
-            "Gagal update status");
+        showToast(
+            "Gagal tambah update distribusi ",
+            "error"
+        );
     }
 }
 
@@ -881,6 +886,11 @@ async function hapusDistribusi(id) {
                 method: "DELETE"
             });
 
+        showToast(
+            "Distribusi berhasil dihapus",
+            "success"
+        );
+
         loadDistribusi();
 
     }
@@ -889,8 +899,10 @@ async function hapusDistribusi(id) {
 
         console.log(error);
 
-        alert(
-            "Gagal hapus distribusi");
+        showToast(
+            "Gagal hapus distribusi",
+            "error"
+        );
     }
 }
 
@@ -1133,10 +1145,353 @@ async function loadDropdownPenerima() {
 }
 
 // ==========================
+// LOAD DROPDOWN DETAIL MENU
+// ==========================
+
+async function loadDropdownDetailMenu() {
+
+
+    // DROPDOWN PAKET MENU
+
+    const paketSelect =
+        document.getElementById(
+            "idPaketDetail"
+        );
+
+    // DROPDOWN KOMODITAS
+
+    const komoditasSelect =
+        document.getElementById(
+            "idKomoditasDetail"
+        );
+
+    if (!paketSelect || !komoditasSelect)
+        return;
+
+    try {
+
+        // ==========================
+        // LOAD PAKET MENU
+        // ==========================
+
+        const paketResponse =
+            await fetch(
+                `${BASE_URL}/paket-menu`
+            );
+
+        const paketData =
+            await paketResponse.json();
+
+        paketSelect.innerHTML = `
+
+        <option value="">
+            Pilih Paket Menu
+        </option>
+
+    `;
+
+        paketData.forEach(item => {
+
+            paketSelect.innerHTML += `
+
+            <option value="${item.idMenu}">
+
+                ${item.namaMenu}
+
+            </option>
+
+        `;
+        });
+
+        // ==========================
+        // LOAD KOMODITAS
+        // ==========================
+
+        const komoditasResponse =
+            await fetch(
+                `${BASE_URL}/komoditas`
+            );
+
+        const komoditasData =
+            await komoditasResponse.json();
+
+        komoditasSelect.innerHTML = `
+
+        <option value="">
+            Pilih Komoditas
+        </option>
+
+    `;
+
+        komoditasData.forEach(item => {
+
+            komoditasSelect.innerHTML += `
+
+            <option value="${item.idKomoditas}">
+
+                ${item.namaBahan}
+
+            </option>
+
+        `;
+        });
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+        showToast(
+            "Gagal load dropdown detail menu",
+            "error"
+        );
+    }
+
+
+}
+
+// ==========================
+// LOAD DETAIL MENU
+// ==========================
+
+async function loadDetailMenu() {
+
+
+    const body =
+        document.getElementById(
+            "detailMenuBody"
+        );
+
+    if (!body) return;
+
+    try {
+
+        const response =
+            await fetch(
+                `${BASE_URL}/detail-menu`
+            );
+
+        const data =
+            await response.json();
+
+        body.innerHTML = "";
+
+        data.forEach((item, i) => {
+
+            body.innerHTML += `
+
+            <tr>
+
+                <td>${i + 1}</td>
+
+                <td>
+                    ${item.paketMenu?.namaMenu || "-"}
+                </td>
+
+                <td>
+                    ${item.komoditas?.namaBahan || "-"}
+                </td>
+
+                <td>
+                    ${item.jumlahKebutuhanPerPorsi}
+                </td>
+
+                <td>
+
+                    <button onclick="
+                        hapusDetailMenu(
+                            ${item.idDetail}
+                        )">
+
+                        Hapus
+
+                    </button>
+
+                </td>
+
+            </tr>
+
+        `;
+        });
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+        showToast(
+            "Gagal load detail menu",
+            "error"
+        );
+    }
+
+
+}
+
+// ==========================
+// TAMBAH DETAIL MENU
+// ==========================
+
+async function tambahDetailMenu() {
+
+    const idMenu =
+        document.getElementById(
+            "idPaketDetail"
+        ).value;
+
+    const idKomoditas =
+        document.getElementById(
+            "idKomoditasDetail"
+        ).value;
+
+    const jumlah =
+        document.getElementById(
+            "jumlahKebutuhan"
+        ).value;
+
+    if (
+        !idMenu ||
+        !idKomoditas ||
+        !jumlah
+    ) {
+
+        showToast(
+            "Data belum lengkap",
+            "error"
+        );
+
+        return;
+    }
+
+    const dataDetail = {
+
+        paketMenu: {
+            idMenu: parseInt(idMenu)
+        },
+
+        komoditas: {
+            idKomoditas:
+                parseInt(idKomoditas)
+        },
+
+        jumlahKebutuhanPerPorsi:
+            parseFloat(jumlah)
+    };
+
+    try {
+
+        const response =
+            await fetch(
+                `${BASE_URL}/detail-menu`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify(
+                        dataDetail
+                    )
+                }
+            );
+
+        if (!response.ok) {
+
+            showToast(
+                "Gagal tambah detail menu",
+                "error"
+            );
+
+            return;
+        }
+
+        showToast(
+            "Detail menu berhasil ditambahkan",
+            "success"
+        );
+
+        loadDetailMenu();
+
+        document.getElementById(
+            "idPaketDetail"
+        ).value = "";
+
+        document.getElementById(
+            "idKomoditasDetail"
+        ).value = "";
+
+        document.getElementById(
+            "jumlahKebutuhan"
+        ).value = "";
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+        showToast(
+            "Terjadi kesalahan",
+            "error"
+        );
+    }
+
+
+}
+
+// ==========================
+// HAPUS DETAIL MENU
+// ==========================
+
+async function hapusDetailMenu(id) {
+
+
+    try {
+
+        await fetch(
+            `${BASE_URL}/detail-menu/${id}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+        showToast(
+            "Detail menu berhasil dihapus",
+            "success"
+        );
+
+        loadDetailMenu();
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+        showToast(
+            "Gagal hapus detail menu",
+            "error"
+        );
+    }
+
+
+}
+
+
+// ==========================
 // AUTO LOAD
 // ==========================
 
 window.onload = function () {
+    showPage("dashboard");
+
+    loadDetailMenu();
+
+    loadDropdownDetailMenu();
 
     loadKomoditas();
 

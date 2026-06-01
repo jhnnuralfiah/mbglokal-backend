@@ -2,6 +2,8 @@ package com.kelompok7.mbglokal.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,10 +24,11 @@ public class PaketMenu {
 
     @Column(name = "nama_menu")
     private String namaMenu;
-    
+
     @Column(name = "deskripsi_gizi")
     private String deskripsiGizi;
 
     @OneToMany(mappedBy = "paketMenu")
+    @JsonIgnore
     private List<DetailMenu> detailMenus;
 }

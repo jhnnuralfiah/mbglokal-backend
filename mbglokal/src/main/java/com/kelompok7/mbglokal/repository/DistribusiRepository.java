@@ -9,4 +9,5 @@ import com.kelompok7.mbglokal.entity.Distribusi;
 public interface DistribusiRepository extends JpaRepository<Distribusi, Long> {
 
     List<Distribusi> findByStatus(String status);
+    List<Distribusi> findByPenerimaManfaat_IdUser(Long idUser);
 }

@@ -45,39 +45,46 @@ public class DistribusiServiceImpl implements DistribusiService {
         }
 
         // AMBIL DETAIL MENU
-        List<DetailMenu> detailMenus =
-                detailMenuRepository.findByPaketMenu_IdMenu(
-                        distribusi.getPaketMenu().getIdMenu()
-                );
+        List<DetailMenu> detailMenus = detailMenuRepository.findByPaketMenu_IdMenu(
+                distribusi.getPaketMenu().getIdMenu());
 
         // VALIDASI MENU
         if (detailMenus.isEmpty()) {
             throw new RuntimeException("Menu tidak memiliki detail bahan");
         }
 
-        // CEK STOK
+        // CEK STOK (COLLECT ALL ERROR)
+        List<String> errorList = new java.util.ArrayList<>();
+
         for (DetailMenu detail : detailMenus) {
 
             Komoditas komoditas = detail.getKomoditas();
 
-            double kebutuhanTotal =
-                    detail.getJumlahKebutuhanPerPorsi()
+            double kebutuhanTotal = detail.getJumlahKebutuhanPerPorsi()
                     * distribusi.getJumlahPorsiDikirim();
 
             if (komoditas.getStokSaatIni() == null) {
-                throw new RuntimeException(
-                    "Stok bahan belum diisi: "
-                        + komoditas.getNamaBahan()
-                );
+
+                errorList.add(
+                        "Stok bahan belum diisi: " +
+                                komoditas.getNamaBahan());
+
+                continue;
             }
 
             if (komoditas.getStokSaatIni() < kebutuhanTotal) {
 
-                throw new RuntimeException(
-                        "Stok tidak cukup untuk: "
-                        + komoditas.getNamaBahan()
-                );
+                errorList.add(
+                        komoditas.getNamaBahan());
             }
+        }
+
+        // kalau ada error, stop semua proses
+        if (!errorList.isEmpty()) {
+
+            throw new RuntimeException(
+                    "Stok tidak cukup untuk: " +
+                            String.join(", ", errorList));
         }
 
         // KURANGI STOK
@@ -85,27 +92,28 @@ public class DistribusiServiceImpl implements DistribusiService {
 
             Komoditas komoditas = detail.getKomoditas();
 
-            double kebutuhanTotal =
-                    detail.getJumlahKebutuhanPerPorsi()
+            double kebutuhanTotal = detail.getJumlahKebutuhanPerPorsi()
                     * distribusi.getJumlahPorsiDikirim();
 
-            double stokBaru =
-                    komoditas.getStokSaatIni() - kebutuhanTotal;
+            double stokBaru = komoditas.getStokSaatIni() - kebutuhanTotal;
 
             if (stokBaru < 0) {
-               throw new RuntimeException(
-                    "Stok menjadi negatif untuk: "
-                        + komoditas.getNamaBahan()
-                );
+                throw new RuntimeException(
+                        "Stok menjadi negatif untuk: "
+                                + komoditas.getNamaBahan());
             }
-            
+
             komoditas.setStokSaatIni(stokBaru);
 
             komoditasRepository.save(komoditas);
         }
 
         // STATUS DEFAULT
-        distribusi.setStatus("DIPROSES");
+        if (distribusi.getStatus() == null ||
+                distribusi.getStatus().isEmpty()) {
+
+            distribusi.setStatus("Proses");
+        }
 
         // SIMPAN DISTRIBUSI
         return repo.save(distribusi);
@@ -129,5 +137,10 @@ public class DistribusiServiceImpl implements DistribusiService {
     @Override
     public List<Distribusi> getByStatus(String status) {
         return repo.findByStatus(status);
+    }
+
+    @Override
+    public List<Distribusi> getByUser(Long idUser) {
+        return repo.findByPenerimaManfaat_IdUser(idUser);
     }
 }

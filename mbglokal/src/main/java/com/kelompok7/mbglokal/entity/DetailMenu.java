@@ -1,6 +1,6 @@
 package com.kelompok7.mbglokal.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,11 +23,11 @@ public class DetailMenu {
 
     @ManyToOne
     @JoinColumn(name = "id_menu")
-    @JsonIgnore
     private PaketMenu paketMenu;
 
     @ManyToOne
     @JoinColumn(name = "id_komoditas")
+    @JsonIgnoreProperties("petani")
     private Komoditas komoditas;
 
     @Column(name = "jumlah_kebutuhan_per_porsi")

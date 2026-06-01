@@ -17,4 +17,6 @@ public interface DistribusiService {
     void delete(Long id);
 
     List<Distribusi> getByStatus(String status);
+
+    List<Distribusi> getByUser(Long idUser);
 }

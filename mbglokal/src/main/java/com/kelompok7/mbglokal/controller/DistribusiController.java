@@ -61,4 +61,9 @@ public class DistribusiController {
     public List<Distribusi> getByStatus(@PathVariable String status) {
         return service.getByStatus(status);
     }
+
+    @GetMapping("/user/{idUser}")
+    public List<Distribusi> getByUser(@PathVariable Long idUser) {
+        return service.getByUser(idUser);
+    }
 }

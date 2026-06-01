@@ -1,186 +1,178 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-    content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Dashboard Petani</title>
 
-    <link rel="stylesheet"
-    href="css/style.css">
+    <link rel="stylesheet" href="css/style.css">
 
 </head>
 
 <body>
 
-<!-- ================= SIDEBAR ================= -->
+    <!-- ================= SIDEBAR ================= -->
 
-<div class="sidebar">
+    <div class="sidebar">
 
-    <img src="img/logo.png"
-    class="sidebar-logo">
+        <img src="img/logo.png" class="sidebar-logo">
 
-    <h2>PETANI</h2>
+        <h2>PETANI</h2>
 
-    <ul>
+        <ul>
 
-        <li onclick="showPage('dashboard')">
-            Dashboard
-        </li>
+            <li onclick="showPage('dashboard')">
+                Dashboard
+            </li>
 
-        <li onclick="showPage('stok')">
-            Stok Saya
-        </li>
+            <li onclick="showPage('stok')">
+                Stok Saya
+            </li>
 
-        <li onclick="showPage('permintaan')">
-            Permintaan Admin
-        </li>
+            <li onclick="showPage('permintaan')">
+                Permintaan Admin
+            </li>
 
-    </ul>
+        </ul>
 
-    <button class="logout-btn"
-    onclick="logout()">
+        <button class="logout-btn" onclick="logout()">
 
-        Logout
+            Logout
 
-    </button>
+        </button>
 
-</div>
+    </div>
 
-<!-- ================= CONTENT ================= -->
+    <!-- ================= CONTENT ================= -->
 
-<div class="content">
+    <div class="content">
 
-    <!-- ================= DASHBOARD ================= -->
+        <!-- ================= DASHBOARD ================= -->
 
-    <div id="dashboard"
-    class="page">
+        <div id="dashboard" class="page">
 
-        <div class="topbar">
+            <div class="topbar">
 
-            <h1>Dashboard Petani</h1>
-
-        </div>
-
-        <div class="card-container">
-
-            <div class="card">
-
-                <h3>Total Komoditas</h3>
-
-                <p id="totalKomoditas">
-                    0
-                </p>
+                <h1>Dashboard Petani</h1>
 
             </div>
 
-            <div class="card">
+            <div class="card-container">
 
-                <h3>Total Permintaan</h3>
+                <div class="card">
 
-                <p id="totalPermintaan">
-                    0
-                </p>
+                    <h3>Total Komoditas</h3>
+
+                    <p id="totalKomoditas">
+                        0
+                    </p>
+
+                </div>
+
+                <div class="card">
+
+                    <h3>Total Permintaan</h3>
+
+                    <p id="totalPermintaan">
+                        0
+                    </p>
+
+                </div>
 
             </div>
 
         </div>
 
-    </div>
+        <!-- ================= STOK PETANI ================= -->
 
-    <!-- ================= STOK PETANI ================= -->
+        <div id="stok" class="page hidden">
 
-    <div id="stok"
-    class="page hidden">
+            <div class="topbar">
 
-        <div class="topbar">
+                <h1>Stok Petani</h1>
 
-            <h1>Stok Petani</h1>
+            </div>
 
-        </div>
+            <div class="form-box">
 
-        <div class="form-box">
+                <input type="text" id="namaKomoditas" placeholder="Nama Komoditas">
 
-            <input type="text"
-            id="namaKomoditas"
-            placeholder="Nama Komoditas">
+                <input type="number" id="stokKomoditas" placeholder="Jumlah Stok">
 
-            <input type="number"
-            id="stokKomoditas"
-            placeholder="Jumlah Stok">
+                <button class="add-btn" onclick="tambahKomoditas()">
 
-            <button class="add-btn"
-            onclick="tambahKomoditas()">
+                    Tambah Stok
 
-                Tambah Stok
+                </button>
 
-            </button>
+            </div>
 
-        </div>
+            <table>
 
-        <table>
+                <thead>
 
-            <thead>
+                    <tr>
 
-                <tr>
+                        <th>No</th>
+                        <th>Komoditas</th>
+                        <th>Stok Petani</th>
 
-                    <th>No</th>
-                    <th>Komoditas</th>
-                    <th>Stok Petani</th>
+                    </tr>
 
-                </tr>
+                </thead>
 
-            </thead>
+                <tbody id="komoditasBody">
 
-            <tbody id="komoditasBody">
+                </tbody>
 
-            </tbody>
-
-        </table>
-
-    </div>
-
-    <!-- ================= PERMINTAAN ADMIN ================= -->
-
-    <div id="permintaan"
-    class="page hidden">
-
-        <div class="topbar">
-
-            <h1>Permintaan Admin</h1>
+            </table>
 
         </div>
 
-        <table>
+        <!-- ================= PERMINTAAN ADMIN ================= -->
 
-            <thead>
+        <div id="permintaan" class="page hidden">
 
-                <tr>
+            <div class="topbar">
 
-                    <th>No</th>
-                    <th>Komoditas</th>
-                    <th>Jumlah</th>
-                    <th>Status</th>
+                <h1>Permintaan Admin</h1>
 
-                </tr>
+            </div>
 
-            </thead>
+            <table>
 
-            <tbody id="permintaanBody">
+                <thead>
 
-            </tbody>
+                    <tr>
 
-        </table>
+                        <th>No</th>
+                        <th>Komoditas</th>
+                        <th>Jumlah</th>
+                        <th>Status</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="permintaanBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
 
     </div>
 
-</div>
+    <div id="toast"></div>
 
-<!-- ================= SCRIPT ================= -->
-<script src="js/script.js"></script>
+    <!-- ================= SCRIPT ================= -->
+    <script src="js/script.js"></script>
 
 </body>
+
 </html>
