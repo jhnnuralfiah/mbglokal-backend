@@ -610,6 +610,15 @@ TOAST
     background-color: #e74c3c;
 }
 
+a {
+    color: #2d6cdf;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
 @keyframes fadeIn {
 
     from {

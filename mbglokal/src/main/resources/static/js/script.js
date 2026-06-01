@@ -1656,6 +1656,94 @@ async function loadDashboardSekolah() {
     }
 }
 
+async function register() {
+
+    const role = document.getElementById("role").value;
+    const username = document.getElementById("username")?.value;
+    const password = document.getElementById("password")?.value;
+
+    if (!role || !username || !password) {
+        showToast("Data belum lengkap", "error");
+        return;
+    }
+
+    let data = {
+        username,
+        password,
+        role
+    };
+
+    if (role === "PETANI") {
+        data.namaPetani = document.getElementById("namaPetani")?.value;
+    }
+
+    if (role === "SEKOLAH") {
+        data.namaInstansi = document.getElementById("namaInstansi")?.value;
+    }
+
+    try {
+
+        const res = await fetch(`${BASE_URL}/auth/register`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (!res.ok) {
+            showToast(result.message, "error");
+            return;
+        }
+
+        showToast("Register berhasil", "success");
+
+        setTimeout(() => {
+            window.location.href = "login.html";
+        }, 1200);
+
+    } catch (err) {
+        console.log(err);
+        showToast("Server error", "error");
+    }
+}
+
+function renderRegisterForm() {
+
+    const role = document.getElementById("role").value;
+    const form = document.getElementById("dynamicForm");
+
+    form.innerHTML = "";
+
+    if (role === "ADMIN") {
+
+        form.innerHTML = `
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+        `;
+    }
+
+    else if (role === "PETANI") {
+
+        form.innerHTML = `
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <input type="text" id="namaPetani" placeholder="Nama Petani">
+        `;
+    }
+
+    else if (role === "SEKOLAH") {
+
+        form.innerHTML = `
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <input type="text" id="namaInstansi" placeholder="Nama Sekolah">
+        `;
+    }
+}
+
 // ==========================
 // AUTO LOAD
 // ==========================

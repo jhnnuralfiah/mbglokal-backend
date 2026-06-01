@@ -53,4 +53,37 @@ public class AuthController {
                             "message", "Username tidak ditemukan"));
         }
     }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody User user) {
+
+        // cek username sudah ada
+        Optional<User> existing = userRepository.findByUsername(user.getUsername());
+
+        if (existing.isPresent()) {
+            return ResponseEntity.status(400).body(
+                    java.util.Map.of(
+                            "success", false,
+                            "message", "Username sudah digunakan"));
+        }
+
+        // validasi minimal
+        if (user.getUsername() == null ||
+                user.getPassword() == null ||
+                user.getRole() == null) {
+
+            return ResponseEntity.status(400).body(
+                    java.util.Map.of(
+                            "success", false,
+                            "message", "Data tidak lengkap"));
+        }
+
+        User saved = userRepository.save(user);
+
+        return ResponseEntity.ok(
+                java.util.Map.of(
+                        "success", true,
+                        "message", "Register berhasil",
+                        "idUser", saved.getIdUser()));
+    }
 }
