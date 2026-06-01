@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard Admin</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <div class="sidebar">
+
+        <img src="img/logo.png" class="sidebar-logo">
+
+        <h2>ADMIN MBG</h2>
+
+        <ul>
+
+            <li onclick="showPage('dashboard')">
+                Dashboard
+            </li>
+
+            <li onclick="showPage('komoditas')">
+                Komoditas
+            </li>
+
+            <!-- <li onclick="showPage('gudang')">
+                Gudang MBG
+            </li> -->
+
+            <li onclick="showPage('paket')">
+                Paket Menu
+            </li>
+
+            <li onclick="showPage('distribusi')">
+                Distribusi
+            </li>
+
+            <!-- <li onclick="showPage('pesanan')">
+                Pesanan Petani
+            </li> -->
+
+            <li onclick="showPage('komentar')">
+                Komentar
+            </li>
+
+        </ul>
+
+        <button class="logout-btn" onclick="logout()">
+
+            Logout
+
+        </button>
+
+    </div>
+
+    <!-- ================= CONTENT ================= -->
+
+    <div class="content">
+
+        <!-- ================= DASHBOARD ================= -->
+
+        <div id="dashboard" class="page">
+
+            <div class="topbar">
+
+                <h1>Dashboard Admin</h1>
+
+            </div>
+
+            <div class="card-container">
+
+                <div class="card">
+
+                    <h3>Total Komoditas</h3>
+
+                    <p id="totalKomoditas">
+                        0
+                    </p>
+
+                </div>
+
+                <div class="card">
+
+                    <h3>Total Paket Menu</h3>
+
+                    <p id="totalPaket">
+                        0
+                    </p>
+
+                </div>
+
+                <div class="card">
+
+                    <h3>Total Distribusi</h3>
+
+                    <p id="totalDistribusi">
+                        0
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================= KOMODITAS ================= -->
+
+        <div id="komoditas" class="page hidden">
+
+            <div class="topbar">
+
+                <h1>Komoditas</h1>
+
+            </div>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>No</th>
+                        <th>Komoditas</th>
+                        <th>Stok</th>
+                        <th>Aksi</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="komoditasBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- ================= GUDANG ================= -->
+
+        <div id="gudang" class="page hidden">
+
+            <div class="topbar">
+
+                <h1>Gudang MBG</h1>
+
+            </div>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>No</th>
+                        <th>Komoditas</th>
+                        <th>Stok Gudang</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="gudangBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- ================= PAKET MENU ================= -->
+
+        <div id="paket" class="page hidden">
+
+            <div class="topbar">
+
+                <h1>Paket Menu</h1>
+
+            </div>
+
+            <div class="form-box">
+
+                <input type="text" id="namaPaket" placeholder="Nama Paket">
+
+                <input type="text" id="isiPaket" placeholder="Deskripsi Gizi">
+
+                <button class="add-btn" onclick="tambahPaket()">
+
+                    Tambah
+
+                </button>
+
+            </div>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>No</th>
+                        <th>Nama Paket</th>
+                        <th>Deskripsi Gizi</th>
+                        <th>Aksi</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="paketBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- ================= DISTRIBUSI ================= -->
+
+        <div id="distribusi" class="page hidden">
+
+            <div class="topbar">
+
+                <h1>Distribusi</h1>
+
+            </div>
+
+            <div class="form-box">
+
+                <select id="idMenuDistribusi">
+
+                    <option value="">
+                        Pilih Paket Menu
+                    </option>
+
+                </select>
+
+                <select id="idPenerimaDistribusi">
+
+                    <option value="">
+                        Pilih Penerima
+                    </option>
+
+                </select>
+
+                <input type="date" id="tanggalDistribusi">
+
+                <input type="number" id="jumlahPorsi" placeholder="Jumlah Porsi">
+
+                <select id="statusDistribusi">
+
+                    <option value="">
+                        Pilih Status
+                    </option>
+
+                    <option value="Proses">
+                        Proses
+                    </option>
+
+                    <option value="Dikirim">
+                        Dikirim
+                    </option>
+
+                    <option value="Selesai">
+                        Selesai
+                    </option>
+
+                </select>
+
+                <button class="add-btn" onclick="tambahDistribusi()">
+
+                    Tambah
+
+                </button>
+
+            </div>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>No</th>
+                        <th>Menu</th>
+                        <th>Penerima</th>
+                        <th>Tanggal</th>
+                        <th>Porsi</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="distribusiBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- ================= PESANAN PETANI ================= -->
+
+        <div id="pesanan" class="page hidden">
+
+            <div class="topbar">
+
+                <h1>Pesanan Petani</h1>
+
+            </div>
+
+            <div class="form-box">
+
+                <input type="text" id="namaPetani" placeholder="Nama Petani">
+
+                <input type="text" id="komoditasPesanan" placeholder="Komoditas">
+
+                <input type="number" id="jumlahPesanan" placeholder="Jumlah">
+
+                <button class="add-btn" onclick="tambahPesanan()">
+
+                    Kirim Pesanan
+
+                </button>
+
+            </div>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>No</th>
+                        <th>Petani</th>
+                        <th>Komoditas</th>
+                        <th>Jumlah</th>
+                        <th>Status</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="pesananBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- ================= KOMENTAR ================= -->
+
+        <div id="komentar" class="page hidden">
+
+            <div class="topbar">
+
+                <h1>Komentar</h1>
+
+            </div>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>No</th>
+                        <th>Sekolah</th>
+                        <th>Komentar</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="komentarBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <div id="toast"></div>
+
+    <!-- ================= SCRIPT ================= -->
+    <script src="js/script.js"></script>
+</body>
+
+</html>
