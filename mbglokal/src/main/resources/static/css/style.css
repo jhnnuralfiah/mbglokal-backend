@@ -153,16 +153,23 @@ button:hover {
 
 .sidebar {
     width: 270px;
-
-    min-height: 100vh;
-
+    height: 100vh;        /* ganti dari min-height */
     background: #001f5b;
-
     color: white;
-
     position: fixed;
-
     padding: 20px;
+
+    overflow-y: auto;     /* INI KUNCI SCROLL */
+    overflow-x: hidden;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: #3498db;
+    border-radius: 10px;
 }
 
 .sidebar-logo {
@@ -617,6 +624,30 @@ a {
 
 a:hover {
     text-decoration: underline;
+}
+
+.action-btn {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+.action-btn button {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.edit-btn {
+    background: #f0ad4e;
+    color: white;
+}
+
+.delete-btn {
+    background: #d9534f;
+    color: white;
 }
 
 @keyframes fadeIn {

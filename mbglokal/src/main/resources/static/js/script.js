@@ -1005,7 +1005,21 @@ function loadPesanan() {
 let komentar =
     JSON.parse(
         localStorage.getItem(
-            "komentar")) || [];
+            "komentar")) || [
+        {
+            sekolah: "SMA 1 Bandung",
+            isi: "Menu hari ini enak dan bergizi!"
+        },
+        {
+            sekolah: "SMK 2 Cimahi",
+            isi: "Distribusi tepat waktu, bagus."
+        },
+        {
+            sekolah: "SMP 5 Bandung",
+            isi: "Mohon tambah variasi sayur."
+        }
+    ];
+
 
 function loadKomentar() {
 
@@ -1020,20 +1034,15 @@ function loadKomentar() {
     komentar.forEach((item, i) => {
 
         body.innerHTML += `
-
         <tr>
-
             <td>${i + 1}</td>
-
             <td>${item.sekolah}</td>
-
             <td>${item.isi}</td>
-
         </tr>
-
         `;
     });
 }
+
 
 // ==========================
 // LOAD DROPDOWN PAKET MENU
@@ -1555,20 +1564,35 @@ async function loadKomoditasPetani() {
     }
 }
 
-async function loadPermintaan() {
+let permintaanData = [
+    {
+        komoditas: "Beras",
+        jumlah: 20,
+        status: "Menunggu"
+    },
+    {
+        komoditas: "Kentang",
+        jumlah: 15,
+        status: "Disetujui"
+    },
+    {
+        komoditas: "Tomat",
+        jumlah: 10,
+        status: "Ditolak"
+    }
+];
 
-    const body = document.getElementById("permintaanBody");
+function loadPermintaan() {
+
+    let body =
+        document.getElementById("permintaanBody");
+
     if (!body) return;
-
-    // sementara dummy dulu
-    const data = [
-        { komoditas: "Beras", jumlah: 10, status: "Menunggu" },
-        { komoditas: "Sayur", jumlah: 5, status: "Disetujui" }
-    ];
 
     body.innerHTML = "";
 
-    data.forEach((item, i) => {
+    permintaanData.forEach((item, i) => {
+
         body.innerHTML += `
             <tr>
                 <td>${i + 1}</td>
@@ -1579,7 +1603,10 @@ async function loadPermintaan() {
         `;
     });
 
-    document.getElementById("totalPermintaan").innerText = data.length;
+    let total = document.getElementById("totalPermintaan");
+    if (total) {
+        total.innerText = permintaanData.length;
+    }
 }
 
 async function loadDashboardPetani() {
@@ -1744,6 +1771,117 @@ function renderRegisterForm() {
     }
 }
 
+async function loadUser() {
+
+    const body = document.getElementById("userBody");
+    if (!body) return;
+
+    const filter = document.getElementById("filterRole")?.value || "";
+
+    try {
+
+        let url = `${BASE_URL}/users`;
+
+        if (filter) {
+            url += `?role=${filter}`;
+        }
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        body.innerHTML = "";
+
+        data.forEach((user, i) => {
+            body.innerHTML += `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${user.username}</td>
+                    <td>${user.role}</td>
+                    <td>${user.namaInstansi || user.namaPetani || "-"}</td>
+                    <td>
+    <div class="action-btn">
+        <button class="edit-btn" onclick="openEditUser(${user.idUser}, '${user.username}', '${user.role}')">
+            Edit
+        </button>
+
+        <button class="delete-btn" onclick="hapusUser(${user.idUser})">
+            Hapus
+        </button>
+    </div>
+</td>
+                </tr>
+            `;
+        });
+
+    } catch (error) {
+        console.log(error);
+        showToast("Gagal load user", "error");
+    }
+}
+
+async function updateUser(id, username, role) {
+
+    const response = await fetch(`${BASE_URL}/users/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username: username,
+            role: role
+        })
+    });
+
+    if (response.ok) {
+        showToast("User berhasil diupdate", "success");
+        loadUser();
+    } else {
+        showToast("Gagal update user", "error");
+    }
+}
+
+function editUser(id, username, role) {
+
+    const newUsername = prompt("Edit username:", username);
+    const newRole = prompt("Edit role (ADMIN / PETANI / SEKOLAH):", role);
+
+    if (!newUsername || !newRole) {
+        showToast("Edit dibatalkan", "error");
+        return;
+    }
+
+    updateUser(id, newUsername, newRole);
+}
+
+function openEditUser(id, username, role) {
+    const newUsername = prompt("Edit username:", username);
+    const newRole = prompt("Edit role:", role);
+
+    if (!newUsername || !newRole) return;
+
+    updateUser(id, newUsername, newRole);
+}
+
+async function updateUser(id, username, role) {
+    const response = await fetch(`${BASE_URL}/users/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username,
+            role
+        })
+    });
+
+    if (response.ok) {
+        showToast("User berhasil diupdate", "success");
+        loadUser();
+    } else {
+        showToast("Gagal update user", "error");
+    }
+}
+
 // ==========================
 // AUTO LOAD
 // ==========================
@@ -1756,10 +1894,13 @@ window.onload = function () {
     if (role === "PETANI") {
         loadDashboardPetani();
         loadKomoditasPetani();
-        loadPermintaan();
     }
 
+    loadPermintaan();
+
     loadDashboardSekolah();
+
+    loadUser();
 
     loadDashboardPreview();
 

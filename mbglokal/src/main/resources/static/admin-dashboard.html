@@ -41,9 +41,9 @@
                 Distribusi
             </li>
 
-            <!-- <li onclick="showPage('pesanan')">
-                Pesanan Petani
-            </li> -->
+            <li onclick="showPage('permintaan')">
+                Permintaan ke Petani
+            </li>
 
             <li onclick="showPage('detailmenu')">
                 Detail Menu
@@ -51,6 +51,9 @@
 
             <li onclick="showPage('komentar')">
                 Komentar
+            </li>
+            <li onclick="showPage('user')">
+                User Management
             </li>
 
         </ul>
@@ -180,6 +183,29 @@
 
                 </tbody>
 
+            </table>
+
+        </div>
+
+        <!-- ================= PERMINTAAN KE PETANI ================= -->
+
+        <div id="permintaan" class="page hidden">
+
+            <div class="topbar">
+                <h1>Permintaan ke Petani</h1>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Komoditas</th>
+                        <th>Jumlah</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody id="permintaanBody"></tbody>
             </table>
 
         </div>
@@ -456,6 +482,31 @@
                 <tbody id="komentarBody">
 
                 </tbody>
+
+            </table>
+
+        </div>
+        <!-- ================= USER MANAGEMENT ================= -->
+
+        <div id="user" class="page hidden">
+
+            <div class="topbar">
+                <h1>User Management</h1>
+            </div>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Nama</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+
+                <tbody id="userBody"></tbody>
 
             </table>
 
