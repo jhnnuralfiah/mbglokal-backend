@@ -1,10 +1,18 @@
 package com.kelompok7.mbglokal.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.kelompok7.mbglokal.entity.User;
 import com.kelompok7.mbglokal.repository.UserRepository;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -34,8 +42,10 @@ public class UserController {
 
         user.setUsername(updatedUser.getUsername());
         user.setRole(updatedUser.getRole());
-        user.setNamaInstansi(updatedUser.getNamaInstansi());
-        user.setNamaPetani(updatedUser.getNamaPetani());
+
+        // sementara di nonaktifkan untuk build ke railway
+        // user.setNamaInstansi(updatedUser.getNamaInstansi());
+        // user.setNamaKelompok(updatedUser.getNamaKelompok());
 
         if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
             user.setPassword(updatedUser.getPassword());
