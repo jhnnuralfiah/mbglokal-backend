@@ -1,5 +1,5 @@
 const BASE_URL =
-    "http://localhost:8080/api";
+    "/api";
 
 // ==========================
 // TOAST NOTIFICATION
@@ -66,7 +66,7 @@ async function login() {
 
         const response =
             await fetch(
-                "http://localhost:8080/api/auth/login",
+                `${BASE_URL}/auth/login`,
                 {
                     method: "POST",
 
